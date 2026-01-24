@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Http\Services\UserService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class UserController extends Controller
+{
+    use ApiResponse, HandlesValidation;
+
+    protected UserService $service;
+    private string $nameModel = 'Usuario';
+
+    public function __construct(UserService $service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * Display a listing of users.
+     */
+    public function index(Request $request)
+    {
+        $data = $this->service->getFiltered($request);
+
+        return $this->successResponse($data, $this->nameModel . "s obtenidos exitosamente");
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            $createdModel = $this->service->create($data);
+            return $this->successResponse(new UserResource($createdModel), $this->nameModel . " creado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function show(User $user)
+    {
+        try {
+            return $this->successResponse(new UserResource($user), $this->nameModel . " obtenido exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function update(UpdateUserRequest $request, User $model)
+    {
+        try {
+            $data = $request->validated();
+            $updatedModel = $this->service->update($model->id, $data);
+            return $this->successResponse(new UserResource($updatedModel), $this->nameModel . " actualizado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function destroy(User $model)
+    {
+        try {
+            $this->service->delete($model->id);
+            return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+}
