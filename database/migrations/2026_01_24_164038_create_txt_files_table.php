@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('txt_files');
+        Schema::dropIfExists('tb_archivo_txt');
     }
 };

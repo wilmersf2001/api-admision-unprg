@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre', 60);
             $table->string('ubigeo', 6);
-            $table->foreignId('provincia_id')->constrained('provinces')->onDelete('cascade');
+            $table->foreignId('provincia_id')->constrained('tb_provincia')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('districts');
+        Schema::dropIfExists('tb_distrito');
     }
 };

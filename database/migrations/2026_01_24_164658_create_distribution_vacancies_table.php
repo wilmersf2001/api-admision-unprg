@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('tb_distribucion_vacantes', function (Blueprint $table) {
             $table->id();
             $table->integer('vacantes');
-            $table->foreignId('programa_academico_id')->constrained('tb_programa_academico');
-            $table->foreignId('modalidad_id')->constrained('tb_modalidad');
-            $table->foreignId('sede_id')->constrained('tb_sede');
+            $table->foreignId('programa_academico_id')->constrained('tb_programa_academico')->onDelete('cascade');
+            $table->foreignId('modalidad_id')->constrained('tb_modalidad')->onDelete('cascade');
+            $table->foreignId('sede_id')->constrained('tb_sede')->onDelete('cascade');
             $table->unique(['programa_academico_id', 'modalidad_id', 'sede_id'], 'unique_distribucion_vacante');
             $table->timestamps();
             $table->softDeletes();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('distribution_vacancies');
+        Schema::dropIfExists('tb_distribucion_vacantes');
     }
 };

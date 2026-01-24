@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('address_types');
+        Schema::dropIfExists('tb_tipo_direccion');
     }
 };

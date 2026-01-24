@@ -33,29 +33,18 @@ return new class extends Migration
             $table->tinyInteger('num_veces_unprg');
             $table->tinyInteger('num_veces_otros');
             $table->string('codigo', 8);
-            $table->unsignedBigInteger('sexo_id');
-            $table->unsignedBigInteger('distrito_nac_id'); //distrito donde nacio
-            $table->unsignedBigInteger('distrito_res_id'); //distrito donde vive
-            $table->unsignedBigInteger('tipo_direccion_id');
-            $table->unsignedBigInteger('programa_academico_id');
-            $table->unsignedBigInteger('colegio_id');
-            $table->unsignedBigInteger('universidad_id')->nullable();
-            $table->unsignedBigInteger('modalidad_id');
-            $table->unsignedBigInteger('sede_id');
-            $table->unsignedBigInteger('pais_id')->default(134);
-            $table->unsignedBigInteger('estado_postulante_id')->default(1);
             $table->integer('ingreso')->nullable();
-            $table->foreign('sexo_id')->references('id')->on('tb_sexo');
-            $table->foreign('distrito_nac_id')->references('id')->on('tb_distrito');
-            $table->foreign('distrito_res_id')->references('id')->on('tb_distrito');
-            $table->foreign('tipo_direccion_id')->references('id')->on('tb_tipo_direccion');
-            $table->foreign('programa_academico_id')->references('id')->on('tb_programa_academico');
-            $table->foreign('colegio_id')->references('id')->on('tb_colegio');
-            $table->foreign('universidad_id')->references('id')->on('tb_universidad');
-            $table->foreign('modalidad_id')->references('id')->on('tb_modalidad');
-            $table->foreign('sede_id')->references('id')->on('tb_sede');
-            $table->foreign('pais_id')->references('id')->on('tb_pais');
-            $table->foreign('estado_postulante_id')->references('id')->on('tb_estado_postulante');
+            $table->foreignId('sexo_id')->constrained('tb_sexo')->onDelete('cascade');
+            $table->foreignId('distrito_nac_id')->constrained('tb_distrito')->onDelete('cascade');
+            $table->foreignId('distrito_res_id')->constrained('tb_distrito')->onDelete('cascade');
+            $table->foreignId('tipo_direccion_id')->constrained('tb_tipo_direccion')->onDelete('cascade');
+            $table->foreignId('programa_academico_id')->constrained('tb_programa_academico')->onDelete('cascade');
+            $table->foreignId('colegio_id')->constrained('tb_colegio')->onDelete('cascade');
+            $table->foreignId('universidad_id')->nullable()->constrained('tb_universidad')->onDelete('cascade');
+            $table->foreignId('modalidad_id')->constrained('tb_modalidad')->onDelete('cascade');
+            $table->foreignId('sede_id')->constrained('tb_sede')->onDelete('cascade');
+            $table->foreignId('pais_id')->default(134)->constrained('tb_pais')->onDelete('cascade');
+            $table->foreignId('estado_postulante_id')->default(1)->constrained('tb_estado_postulante')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -66,6 +55,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('postulants');
+        Schema::dropIfExists('tb_postulante');
     }
 };

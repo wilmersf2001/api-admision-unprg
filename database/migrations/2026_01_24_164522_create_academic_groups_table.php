@@ -25,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('academic_groups');
+        Schema::dropIfExists('tb_grupo_academico');
+        Schema::dropIfExists('tb_grupo_academico');
     }
 };

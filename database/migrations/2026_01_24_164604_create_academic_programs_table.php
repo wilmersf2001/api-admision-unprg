@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('academic_programs');
+        Schema::dropIfExists('tb_programa_academico');
     }
 };

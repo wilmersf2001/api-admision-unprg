@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('postulant_states');
+        Schema::dropIfExists('tb_estado_postulante');
     }
 };
