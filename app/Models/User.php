@@ -48,4 +48,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected function getFilterConfig(): array
+    {
+        return [
+            'name' => ['type' => 'simple', 'operator' => 'like', 'column' => 'name'],
+            'email' => ['type' => 'simple', 'operator' => 'like', 'column' => 'email'],
+        ];
+    }
+
+    protected function getSortConfig(): array
+    {
+        return [
+            'allowed' => ['id', 'name', 'email', 'created_at'],
+            'default' => 'id',
+        ];
+    }
 }
