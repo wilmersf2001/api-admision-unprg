@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('tb_universidad', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 70);
-            $table->integer('tipo')->nullable();
+            $table->string('tipo')->nullable()->comment('Publica o Privada');
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

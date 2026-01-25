@@ -52,8 +52,10 @@ class User extends Authenticatable
     protected function getFilterConfig(): array
     {
         return [
-            'name' => ['type' => 'simple', 'operator' => 'like', 'column' => 'name'],
-            'email' => ['type' => 'simple', 'operator' => 'like', 'column' => 'email'],
+            'search' => [
+                'type' => 'global_search',
+                'columns' => ['name', 'email'],
+            ],
         ];
     }
 

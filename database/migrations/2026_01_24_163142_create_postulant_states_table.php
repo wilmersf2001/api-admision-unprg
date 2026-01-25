@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tb_estado_postulante', function (Blueprint $table) {
             $table->id();
             $table->string('descripcion', 100);
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

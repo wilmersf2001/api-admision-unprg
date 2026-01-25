@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->decimal('monto_nacional', 10, 2);
             $table->decimal('monto_particular', 10, 2);
-            $table->integer('estado')->default(1);
+            $table->boolean('estado')->default(1);
             $table->foreignId('examen_id')->constrained('tb_examen')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

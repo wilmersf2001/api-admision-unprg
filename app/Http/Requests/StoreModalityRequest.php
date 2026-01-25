@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreModalityRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'descripcion' => 'required|string|max:255',
+            'monto_nacional' => 'required|numeric|min:0',
+            'monto_internacional' => 'required|numeric|min:0',
+            'examen_id' => 'required|exists:tb_examen,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'descripcion.required' => 'La descripción es obligatoria.',
+            'descripcion.string' => 'La descripción debe ser una cadena de texto.',
+            'descripcion.max' => 'La descripción no debe exceder los 255 caracteres.',
+
+            'monto_nacional.required' => 'El monto nacional es obligatorio.',
+            'monto_nacional.numeric' => 'El monto nacional debe ser un número.',
+            'monto_nacional.min' => 'El monto nacional no debe ser negativo.',
+
+            'monto_internacional.required' => 'El monto internacional es obligatorio.',
+            'monto_internacional.numeric' => 'El monto internacional debe ser un número.',
+            'monto_internacional.min' => 'El monto internacional no debe ser negativo.',
+
+            'examen_id.required' => 'El ID del examen es obligatorio.',
+            'examen_id.exists' => 'El ID del examen proporcionado no existe.',
+        ];
+    }
+}

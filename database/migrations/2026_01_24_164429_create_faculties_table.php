@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nombre', 60);
             $table->string('abreviatura', 10);
             $table->string('decano', 50);
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

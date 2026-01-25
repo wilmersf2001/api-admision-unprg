@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('tipo');
             $table->string('ubigeo', 6);
             $table->foreignId('distrito_id')->constrained('tb_distrito')->onDelete('cascade');
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

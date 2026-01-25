@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tb_distribucion_vacantes', function (Blueprint $table) {
             $table->id();
             $table->integer('vacantes');
+            $table->boolean('estado')->default(1);
             $table->foreignId('programa_academico_id')->constrained('tb_programa_academico')->onDelete('cascade');
             $table->foreignId('modalidad_id')->constrained('tb_modalidad')->onDelete('cascade');
             $table->foreignId('sede_id')->constrained('tb_sede')->onDelete('cascade');

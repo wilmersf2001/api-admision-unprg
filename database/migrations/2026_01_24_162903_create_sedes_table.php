@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tb_sede', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 50);
-            $table->integer('estado')->default(1);
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

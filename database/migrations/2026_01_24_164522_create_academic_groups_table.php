@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->char('letra', 1);
             $table->string('nombre', 60);
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('descripcion', 100);
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
-            $table->integer('estado')->default(0);
+            $table->boolean('estado')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

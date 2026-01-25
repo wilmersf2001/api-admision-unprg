@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tb_tipo_direccion', function (Blueprint $table) {
             $table->id();
             $table->string('descripcion', 60);
+            $table->boolean('estado')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

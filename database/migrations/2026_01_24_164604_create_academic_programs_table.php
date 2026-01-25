@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->char('codigo', 2);
             $table->string('nombre', 60);
-            $table->integer('estado');
+            $table->boolean('estado')->default(1);
             $table->foreignId('sede_id')->constrained('tb_sede')->onDelete('cascade');
             $table->foreignId('facultad_id')->constrained('tb_facultad')->onDelete('cascade');
             $table->foreignId('grupo_academico_id')->constrained('tb_grupo_academico')->onDelete('cascade');

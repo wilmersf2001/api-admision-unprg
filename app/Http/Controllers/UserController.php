@@ -32,7 +32,16 @@ class UserController extends Controller
     {
         $data = $this->service->getFiltered($request);
 
-        return $this->successResponse($data, $this->nameModel . "s obtenidos exitosamente");
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new UserResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new UserResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
     public function store(StoreUserRequest $request)
@@ -55,21 +64,21 @@ class UserController extends Controller
         }
     }
 
-    public function update(UpdateUserRequest $request, User $model)
+    public function update(UpdateUserRequest $request, User $user)
     {
         try {
             $data = $request->validated();
-            $updatedModel = $this->service->update($model->id, $data);
+            $updatedModel = $this->service->update($user->id, $data);
             return $this->successResponse(new UserResource($updatedModel), $this->nameModel . " actualizado exitosamente");
         } catch (Exception $exception) {
             return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function destroy(User $model)
+    public function destroy(User $user)
     {
         try {
-            $this->service->delete($model->id);
+            $this->service->delete($user->id);
             return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
         } catch (Exception $exception) {
             return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
