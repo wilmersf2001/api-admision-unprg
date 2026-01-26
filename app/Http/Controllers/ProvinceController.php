@@ -2,64 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Province;
+use App\Http\Resources\ProvinceResource;
+use App\Http\Services\ProvinceService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use Illuminate\Http\Request;
 
 class ProvinceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected ProvinceService $service;
+
+    public function __construct(ProvinceService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
-    }
+        $data = $this->service->getFiltered($request);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new ProvinceResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new ProvinceResource($item));
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Province $province)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Province $province)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Province $province)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Province $province)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 }

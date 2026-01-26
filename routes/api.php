@@ -1,8 +1,15 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ModalityController;
+use App\Http\Controllers\PostulantStateController;
+use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\SedeController;
+use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -49,5 +56,56 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{modality}', [ModalityController::class, 'show']);
         Route::put('/{modality}', [ModalityController::class, 'update']);
         Route::delete('/{modality}', [ModalityController::class, 'destroy']);
+    });
+
+    // Routes Sede
+    Route::prefix('sedes')->group(function () {
+        Route::get('/', [SedeController::class, 'index']);
+        Route::post('/', [SedeController::class, 'store']);
+        Route::get('/{sede}', [SedeController::class, 'show']);
+        Route::put('/{sede}', [SedeController::class, 'update']);
+        Route::delete('/{sede}', [SedeController::class, 'destroy']);
+    });
+
+    // Routes University
+    Route::prefix('universities')->group(function () {
+        Route::get('/', [UniversityController::class, 'index']);
+        Route::post('/', [UniversityController::class, 'store']);
+        Route::get('/{university}', [UniversityController::class, 'show']);
+        Route::put('/{university}', [UniversityController::class, 'update']);
+        Route::delete('/{university}', [UniversityController::class, 'destroy']);
+    });
+
+    // Route Postulant States
+    Route::prefix('postulant-states')->group(function () {
+        Route::get('/', [PostulantStateController::class, 'index']);
+        Route::post('/', [PostulantStateController::class, 'store']);
+        Route::get('/{postulantState}', [PostulantStateController::class, 'show']);
+        Route::put('/{postulantState}', [PostulantStateController::class, 'update']);
+        Route::delete('/{postulantState}', [PostulantStateController::class, 'destroy']);
+    });
+
+    // Route Departments
+    Route::prefix('departments')->group(function () {
+        Route::get('/', [DepartmentController::class, 'index']);
+    });
+
+    // Route Provinces
+    Route::prefix('provinces')->group(function () {
+        Route::get('/', [ProvinceController::class, 'index']);
+    });
+
+    // Route Districts
+    Route::prefix('districts')->group(function () {
+        Route::get('/', [DistrictController::class, 'index']);
+    });
+
+    // Route Genders
+    Route::prefix('genders')->group(function () {
+        Route::get('/', [GenderController::class, 'index']);
+        Route::post('/', [GenderController::class, 'store']);
+        Route::get('/{gender}', [GenderController::class, 'show']);
+        Route::put('/{gender}', [GenderController::class, 'update']);
+        Route::delete('/{gender}', [GenderController::class, 'destroy']);
     });
 });

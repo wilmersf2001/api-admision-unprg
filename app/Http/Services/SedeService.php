@@ -2,16 +2,16 @@
 
 namespace App\Http\Services;
 
-use App\Models\Exam;
+use App\Models\Sede;
 use Exception;
 use Illuminate\Http\Request;
 
-class ExamService
+class SedeService
 {
-    protected Exam $model;
-    private string $nameModel = 'Examen';
+    protected Sede $model;
+    private string $nameModel = 'Sede';
 
-    public function __construct(Exam $model)
+    public function __construct(Sede $model)
     {
         $this->model = $model;
     }

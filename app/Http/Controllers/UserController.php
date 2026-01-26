@@ -25,9 +25,6 @@ class UserController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * Display a listing of users.
-     */
     public function index(Request $request)
     {
         $data = $this->service->getFiltered($request);

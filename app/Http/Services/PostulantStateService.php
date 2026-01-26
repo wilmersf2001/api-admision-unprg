@@ -1,17 +1,16 @@
 <?php
-
 namespace App\Http\Services;
 
-use App\Models\Exam;
+use App\Models\PostulantState;
 use Exception;
 use Illuminate\Http\Request;
 
-class ExamService
+class PostulantStateService
 {
-    protected Exam $model;
-    private string $nameModel = 'Examen';
+    protected PostulantState $model;
+    private string $nameModel = 'Estado de Postulante';
 
-    public function __construct(Exam $model)
+    public function __construct(PostulantState $model)
     {
         $this->model = $model;
     }

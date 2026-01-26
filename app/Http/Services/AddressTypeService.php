@@ -2,16 +2,16 @@
 
 namespace App\Http\Services;
 
-use App\Models\Exam;
+use App\Models\AddressType;
 use Exception;
 use Illuminate\Http\Request;
 
-class ExamService
+class AddressTypeService
 {
-    protected Exam $model;
-    private string $nameModel = 'Examen';
+    protected AddressType $model;
+    private string $nameModel = 'Tipo de Dirección';
 
-    public function __construct(Exam $model)
+    public function __construct(AddressType $model)
     {
         $this->model = $model;
     }

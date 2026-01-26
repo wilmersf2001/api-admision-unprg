@@ -2,64 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Department;
+use App\Http\Resources\DepartmentResource;
+use App\Http\Services\DepartmentService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected DepartmentService $service;
+
+    public function __construct(DepartmentService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
-    }
+        $data = $this->service->getFiltered($request);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new DepartmentResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new DepartmentResource($item));
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Department $department)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Department $department)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Department $department)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Department $department)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 }

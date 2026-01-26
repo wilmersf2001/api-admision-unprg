@@ -7,13 +7,11 @@ use App\Http\Traits\FlexibleQueries;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class Modality extends Model
 {
     /** @use HasFactory<\Database\Factories\ModalityFactory> */
-    use HasApiTokens, HasFactory, Notifiable, Auditable, FlexibleQueries, softDeletes;
+    use HasFactory, Auditable, FlexibleQueries, softDeletes;
 
     protected $table = 'tb_modalidad';
 

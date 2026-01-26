@@ -2,64 +2,83 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProcessRequest;
+use App\Http\Requests\UpdateProcessRequest;
+use App\Http\Resources\ProcessResource;
+use App\Http\Services\ProcessService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use App\Models\Process;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProcessController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected ProcessService $service;
+    private string $nameModel = 'Proceso';
+
+    public function __construct(ProcessService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $data = $this->service->getFiltered($request);
+
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new ProcessResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new ProcessResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreProcessRequest $request)
     {
-        //
+        try {
+            $data = $request->validated();
+            $createdModel = $this->service->create($data);
+            return $this->successResponse(new ProcessResource($createdModel), $this->nameModel . " creado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Process $process)
     {
-        //
+        try {
+            return $this->successResponse(new ProcessResource($process), $this->nameModel . " obtenido exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Process $process)
+    public function update(UpdateProcessRequest $request, Process $process)
     {
-        //
+        try {
+            $data = $request->validated();
+            $updatedModel = $this->service->update($process->id, $data);
+            return $this->successResponse(new ProcessResource($updatedModel), $this->nameModel . " actualizado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Process $process)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Process $process)
     {
-        //
+        try {
+            $this->service->delete($process->id);
+            return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
