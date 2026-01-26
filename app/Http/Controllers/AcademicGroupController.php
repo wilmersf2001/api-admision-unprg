@@ -2,64 +2,83 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAcademicGroupRequest;
+use App\Http\Requests\UpdateAcademicGroupRequest;
+use App\Http\Resources\AcademicGroupResource;
+use App\Http\Services\AcademicGroupService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use App\Models\AcademicGroup;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AcademicGroupController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected AcademicGroupService $service;
+    private string $nameModel = 'AcademicGroupen';
+
+    public function __construct(AcademicGroupService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $data = $this->service->getFiltered($request);
+
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new AcademicGroupResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new AcademicGroupResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreAcademicGroupRequest $request)
     {
-        //
+        try {
+            $data = $request->validated();
+            $createdModel = $this->service->create($data);
+            return $this->successResponse(new AcademicGroupResource($createdModel), $this->nameModel . " creado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(AcademicGroup $academicGroup)
     {
-        //
+        try {
+            return $this->successResponse(new AcademicGroupResource($academicGroup), $this->nameModel . " obtenido exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AcademicGroup $academicGroup)
+    public function update(UpdateAcademicGroupRequest $request, AcademicGroup $academicGroup)
     {
-        //
+        try {
+            $data = $request->validated();
+            $updatedModel = $this->service->update($academicGroup->id, $data);
+            return $this->successResponse(new AcademicGroupResource($updatedModel), $this->nameModel . " actualizado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, AcademicGroup $academicGroup)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(AcademicGroup $academicGroup)
     {
-        //
+        try {
+            $this->service->delete($academicGroup->id);
+            return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
