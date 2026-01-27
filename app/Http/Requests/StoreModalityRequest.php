@@ -24,7 +24,7 @@ class StoreModalityRequest extends FormRequest
         return [
             'descripcion' => 'required|string|max:255',
             'monto_nacional' => 'required|numeric|min:0',
-            'monto_internacional' => 'required|numeric|min:0',
+            'monto_particular' => 'required|numeric|min:0',
             'examen_id' => 'required|exists:tb_examen,id',
         ];
     }
@@ -40,9 +40,9 @@ class StoreModalityRequest extends FormRequest
             'monto_nacional.numeric' => 'El monto nacional debe ser un número.',
             'monto_nacional.min' => 'El monto nacional no debe ser negativo.',
 
-            'monto_internacional.required' => 'El monto internacional es obligatorio.',
-            'monto_internacional.numeric' => 'El monto internacional debe ser un número.',
-            'monto_internacional.min' => 'El monto internacional no debe ser negativo.',
+            'monto_particular.required' => 'El monto internacional es obligatorio.',
+            'monto_particular.numeric' => 'El monto internacional debe ser un número.',
+            'monto_particular.min' => 'El monto internacional no debe ser negativo.',
 
             'examen_id.required' => 'El ID del examen es obligatorio.',
             'examen_id.exists' => 'El ID del examen proporcionado no existe.',

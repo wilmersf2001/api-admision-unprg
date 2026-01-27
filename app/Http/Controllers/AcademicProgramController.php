@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAcademicProgramRequest;
 use App\Http\Requests\UpdateAcademicProgramRequest;
 use App\Http\Resources\AcademicProgramResource;
+use App\Http\Services\AcademicProgramService;
 use App\Http\Traits\ApiResponse;
 use App\Http\Traits\HandlesValidation;
 use App\Models\AcademicProgram;

@@ -2,7 +2,6 @@
 
 namespace App\Http\Services;
 
-
 use App\Models\Modality;
 use Exception;
 use Illuminate\Http\Request;

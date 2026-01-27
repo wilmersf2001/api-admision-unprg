@@ -24,7 +24,7 @@ class UpdateModalityRequest extends FormRequest
         return [
             'descripcion' => 'sometimes|required|string|max:255',
             'monto_nacional' => 'sometimes|required|numeric|min:0',
-            'monto_internacional' => 'sometimes|required|numeric|min:0',
+            'monto_particular' => 'sometimes|required|numeric|min:0',
             'estado' => 'sometimes|required|boolean',
             'examen_id' => 'sometimes|required|exists:tb_examen,id',
         ];
@@ -41,9 +41,9 @@ class UpdateModalityRequest extends FormRequest
             'monto_nacional.numeric' => 'El monto nacional debe ser un número.',
             'monto_nacional.min' => 'El monto nacional no debe ser negativo.',
 
-            'monto_internacional.required' => 'El monto internacional es obligatorio.',
-            'monto_internacional.numeric' => 'El monto internacional debe ser un número.',
-            'monto_internacional.min' => 'El monto internacional no debe ser negativo.',
+            'monto_particular.required' => 'El monto internacional es obligatorio.',
+            'monto_particular.numeric' => 'El monto internacional debe ser un número.',
+            'monto_particular.min' => 'El monto internacional no debe ser negativo.',
 
             'estado.required' => 'El estado es obligatorio.',
             'estado.boolean' => 'El estado debe ser verdadero o falso.',

@@ -55,4 +55,9 @@ class Modality extends Model
             'default' => 'id'
         ];
     }
+
+    public function exam()
+    {
+        return $this->belongsTo(Exam::class, 'examen_id');
+    }
 }

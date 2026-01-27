@@ -18,7 +18,7 @@ class ModalityController extends Controller
     use ApiResponse, HandlesValidation;
 
     protected ModalityService $service;
-    private string $nameModel = 'Usuario';
+    private string $nameModel = 'Modalidad';
 
     public function __construct(ModalityService $service)
     {

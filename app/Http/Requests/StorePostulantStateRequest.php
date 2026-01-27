@@ -11,7 +11,7 @@ class StorePostulantStateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class StorePostulantStateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'descripcion' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'descripcion.required' => 'La descripción es obligatoria.',
+            'descripcion.string' => 'La descripción debe ser una cadena de texto.',
+            'descripcion.max' => 'La descripción no debe exceder los 255 caracteres.',
         ];
     }
 }

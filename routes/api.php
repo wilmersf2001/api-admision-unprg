@@ -44,9 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('exams')->group(function () {
         Route::get('/', [ExamController::class, 'index']);
         Route::post('/', [ExamController::class, 'store']);
-        Route::get('/{user}', [ExamController::class, 'show']);
-        Route::put('/{user}', [ExamController::class, 'update']);
-        Route::delete('/{user}', [ExamController::class, 'destroy']);
+        Route::get('/{exam}', [ExamController::class, 'show']);
+        Route::put('/{exam}', [ExamController::class, 'update']);
+        Route::delete('/{exam}', [ExamController::class, 'destroy']);
     });
 
     // Routes Modality

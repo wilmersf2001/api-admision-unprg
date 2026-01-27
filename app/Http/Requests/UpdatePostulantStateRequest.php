@@ -11,7 +11,7 @@ class UpdatePostulantStateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,19 @@ class UpdatePostulantStateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'descripcion' => 'sometimes|required|string|max:255',
+            'estado' => 'sometimes|required|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'descripcion.required' => 'La descripción es obligatoria.',
+            'descripcion.string' => 'La descripción debe ser una cadena de texto.',
+            'descripcion.max' => 'La descripción no debe exceder los 255 caracteres.',
+            'estado.required' => 'El estado es obligatorio.',
+            'estado.boolean' => 'El estado debe ser un valor booleano.',
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUniversityRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateUniversityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,30 @@ class UpdateUniversityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nombre' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('tb_universidad', 'nombre')->ignore($this->route('university')),
+            ],
+            'tipo' => 'sometimes|required|string|in:Publica,Privada',
+            'estado' => 'sometimes|required|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nombre.required' => 'El nombre de la universidad es obligatorio.',
+            'nombre.string' => 'El nombre de la universidad debe ser una cadena de texto.',
+            'nombre.max' => 'El nombre de la universidad no debe exceder los 255 caracteres.',
+            'nombre.unique' => 'El nombre de la universidad ya existe.',
+            'tipo.required' => 'El tipo de universidad es obligatorio.',
+            'tipo.string' => 'El tipo de universidad debe ser una cadena de texto.',
+            'tipo.in' => 'El tipo de universidad debe ser "Publica" o "Privada".',
+            'estado.required' => 'El estado de la universidad es obligatorio.',
+            'estado.boolean' => 'El estado de la universidad debe ser verdadero o falso.',
         ];
     }
 }

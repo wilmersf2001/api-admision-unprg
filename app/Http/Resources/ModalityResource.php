@@ -14,6 +14,15 @@ class ModalityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'descripcion' => $this->descripcion,
+            'monto_nacional' => $this->monto_nacional,
+            'monto_particular' => $this->monto_particular,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'examen_id' => $this->examen_id,
+            'examen' => new ExamResource($this->whenLoaded('exam')),
+        ];
     }
 }
