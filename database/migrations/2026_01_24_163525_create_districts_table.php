@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('ubigeo', 6);
             $table->foreignId('provincia_id')->constrained('tb_provincia')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

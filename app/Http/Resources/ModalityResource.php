@@ -19,10 +19,11 @@ class ModalityResource extends JsonResource
             'descripcion' => $this->descripcion,
             'monto_nacional' => $this->monto_nacional,
             'monto_particular' => $this->monto_particular,
+            'estado' => $this->estado,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'examen_id' => $this->examen_id,
-            'examen' => new ExamResource($this->whenLoaded('exam')),
+            'examen' => new ExamResource($this->exam),
         ];
     }
 }

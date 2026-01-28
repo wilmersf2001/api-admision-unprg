@@ -98,6 +98,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Districts
     Route::prefix('districts')->group(function () {
         Route::get('/', [DistrictController::class, 'index']);
+        Route::post('/', [DistrictController::class, 'store']);
+        Route::get('/{district}', [DistrictController::class, 'show']);
+        Route::put('/{district}', [DistrictController::class, 'update']);
+        Route::delete('/{district}', [DistrictController::class, 'destroy']);
     });
 
     // Route Genders
