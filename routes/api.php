@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistrictController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PostulantStateController;
+use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\UniversityController;
@@ -111,5 +113,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{gender}', [GenderController::class, 'show']);
         Route::put('/{gender}', [GenderController::class, 'update']);
         Route::delete('/{gender}', [GenderController::class, 'destroy']);
+    });
+
+    // Route Address Types
+    Route::prefix('address-types')->group(function () {
+        Route::get('/', [AddressTypeController::class, 'index']);
+        Route::post('/', [AddressTypeController::class, 'store']);
+        Route::get('/{addressType}', [AddressTypeController::class, 'show']);
+        Route::put('/{addressType}', [AddressTypeController::class, 'update']);
+        Route::delete('/{addressType}', [AddressTypeController::class, 'destroy']);
+    });
+
+    //Route Processes
+    Route::prefix('processes')->group(function () {
+        Route::get('/', [ProcessController::class, 'index']);
+        Route::post('/', [ProcessController::class, 'store']);
+        Route::get('/{process}', [ProcessController::class, 'show']);
+        Route::put('/{process}', [ProcessController::class, 'update']);
+        Route::delete('/{process}', [ProcessController::class, 'destroy']);
     });
 });

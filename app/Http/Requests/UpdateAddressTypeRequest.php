@@ -11,7 +11,7 @@ class UpdateAddressTypeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,18 @@ class UpdateAddressTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'descripcion' => 'sometimes|required|string|max:60',
+            'estado' => 'sometimes|boolean'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'descripcion.required' => 'La :attribute es obligatoria cuando se proporciona.',
+            'descripcion.string' => 'La :attribute debe ser una cadena de texto.',
+            'descripcion.max' => 'La :attribute no debe exceder los :max caracteres.',
+            'estado.boolean' => 'El :attribute debe ser verdadero o falso.'
         ];
     }
 }
