@@ -28,6 +28,7 @@ use App\Http\Controllers\UserController;
 
 // Rutas públicas (sin autenticación)
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::get('modalities', [ModalityController::class, 'index']);
 
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {
@@ -54,7 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Routes Modality
     Route::prefix('modalities')->group(function () {
-        Route::get('/', [ModalityController::class, 'index']);
         Route::post('/', [ModalityController::class, 'store']);
         Route::get('/{modality}', [ModalityController::class, 'show']);
         Route::put('/{modality}', [ModalityController::class, 'update']);
