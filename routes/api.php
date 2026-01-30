@@ -7,6 +7,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ModalityController;
+use App\Http\Controllers\PostulantController;
 use App\Http\Controllers\PostulantStateController;
 use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProvinceController;
@@ -131,5 +132,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{process}', [ProcessController::class, 'show']);
         Route::put('/{process}', [ProcessController::class, 'update']);
         Route::delete('/{process}', [ProcessController::class, 'destroy']);
+    });
+
+    // Route Postulants
+    Route::prefix('postulants')->group(function () {
+        Route::get('/', [PostulantController::class, 'index']);
+        Route::get('/{postulant}', [PostulantController::class, 'show']);
+        Route::put('/{postulant}', [PostulantController::class, 'update']);
     });
 });

@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Services;
+
+use App\Models\Postulant;
+use Exception;
+use Illuminate\Http\Request;
+
+class PostulantService
+{
+    protected Postulant $model;
+    private string $nameModel = 'Postulante';
+
+    public function __construct(Postulant $model)
+    {
+        $this->model = $model;
+    }
+
+    public function getFiltered(Request $request)
+    {
+        $query = $this->model->newQuery(); // Inicia una nueva consulta
+        $query->applyFilters($request); // Lee getFilterConfig() y filtra
+        $query->applySort($request); // Lee getSortConfig() y ordena
+        return $query->applyPagination($request); // all=true = paginado, all=false = sin paginar
+    }
+
+    public function update($id, array $data)
+    {
+        $record = $this->model->find($id);
+        if (!$record) {
+            throw new Exception($this->nameModel . ' no encontrado');
+        }
+        try {
+            $record->update($data);
+            return $record;
+        } catch (\Throwable $th) {
+            throw new Exception('Error al actualizar ' . $this->nameModel . ': ' . $th->getMessage());
+        }
+    }
+}

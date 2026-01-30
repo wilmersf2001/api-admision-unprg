@@ -2,64 +2,61 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdatePostulantRequest;
+use App\Http\Resources\PostulantResource;
+use App\Http\Services\PostulantService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use App\Models\Postulant;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class PostulantController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected PostulantService $service;
+    private string $nameModel = 'Proceso';
+
+    public function __construct(PostulantService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $data = $this->service->getFiltered($request);
+
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new PostulantResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new PostulantResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Postulant $Postulant)
     {
-        //
+        try {
+            return $this->successResponse(new PostulantResource($Postulant), $this->nameModel . " obtenido exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Postulant $postulant)
+    public function update(UpdatePostulantRequest $request, Postulant $Postulant)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Postulant $postulant)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Postulant $postulant)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Postulant $postulant)
-    {
-        //
+        try {
+            $data = $request->validated();
+            $updatedModel = $this->service->update($Postulant->id, $data);
+            return $this->successResponse(new PostulantResource($updatedModel), $this->nameModel . " actualizado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
