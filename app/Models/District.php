@@ -18,7 +18,7 @@ class District extends Model
     protected $fillable = [
         'nombre',
         'ubigeo',
-        'province_id',
+        'provincia_id',
     ];
 
     protected function getFilterConfig(): array
@@ -37,5 +37,10 @@ class District extends Model
             'allowed' => ['nombre', 'ubigeo', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'provincia_id');
     }
 }

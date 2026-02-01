@@ -18,7 +18,7 @@ class Province extends Model
     protected $fillable = [
         'nombre',
         'ubigeo',
-        'department_id',
+        'departamento_id',
     ];
 
     protected function getFilterConfig(): array
@@ -27,6 +27,9 @@ class Province extends Model
             'search' => [
                 'type' => 'global_search',
                 'columns' => ['nombre', 'ubigeo'],
+            ],
+            'departamento_id' => [
+                'columns' => ['departamento_id'],
             ],
         ];
     }
@@ -37,5 +40,10 @@ class Province extends Model
             'allowed' => ['nombre', 'ubigeo', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'departamento_id');
     }
 }

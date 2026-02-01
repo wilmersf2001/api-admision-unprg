@@ -29,6 +29,9 @@ use App\Http\Controllers\UserController;
 // Rutas públicas (sin autenticación)
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::get('modalities', [ModalityController::class, 'index']);
+Route::get('departments', [DepartmentController::class, 'index']);
+Route::get('provinces', [ProvinceController::class, 'index']);
+Route::get('districts', [DistrictController::class, 'index']);
 
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {
@@ -88,19 +91,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{postulantState}', [PostulantStateController::class, 'destroy']);
     });
 
-    // Route Departments
-    Route::prefix('departments')->group(function () {
-        Route::get('/', [DepartmentController::class, 'index']);
-    });
-
-    // Route Provinces
-    Route::prefix('provinces')->group(function () {
-        Route::get('/', [ProvinceController::class, 'index']);
-    });
-
     // Route Districts
     Route::prefix('districts')->group(function () {
-        Route::get('/', [DistrictController::class, 'index']);
         Route::post('/', [DistrictController::class, 'store']);
         Route::get('/{district}', [DistrictController::class, 'show']);
         Route::put('/{district}', [DistrictController::class, 'update']);
