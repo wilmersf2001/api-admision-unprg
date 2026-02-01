@@ -28,6 +28,14 @@ class District extends Model
                 'type' => 'global_search',
                 'columns' => ['nombre', 'ubigeo'],
             ],
+            'provincia_id' => [
+                'columns' => ['provincia_id'],
+            ],
+            'departamento_id' => [
+                'type' => 'relation',
+                'relation' => 'province',
+                'column' => 'departamento_id',
+            ],
         ];
     }
 
