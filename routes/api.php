@@ -11,6 +11,7 @@ use App\Http\Controllers\PostulantController;
 use App\Http\Controllers\PostulantStateController;
 use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
@@ -32,6 +33,7 @@ Route::get('modalities', [ModalityController::class, 'index']);
 Route::get('departments', [DepartmentController::class, 'index']);
 Route::get('provinces', [ProvinceController::class, 'index']);
 Route::get('districts', [DistrictController::class, 'index']);
+Route::get('schools', [SchoolController::class, 'index']);
 
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {
@@ -131,5 +133,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [PostulantController::class, 'index']);
         Route::get('/{postulant}', [PostulantController::class, 'show']);
         Route::put('/{postulant}', [PostulantController::class, 'update']);
+    });
+
+    // Route Schools
+    Route::prefix('schools')->group(function () {
+        Route::post('/', [SchoolController::class, 'store']);
+        Route::get('/{school}', [SchoolController::class, 'show']);
+        Route::put('/{school}', [SchoolController::class, 'update']);
+        Route::delete('/{school}', [SchoolController::class, 'destroy']);
     });
 });

@@ -2,64 +2,83 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSchoolRequest;
+use App\Http\Requests\UpdateSchoolRequest;
+use App\Http\Resources\SchoolResource;
+use App\Http\Services\SchoolService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use App\Models\School;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class SchoolController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected SchoolService $service;
+    private string $nameModel = 'Colegio';
+
+    public function __construct(SchoolService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $data = $this->service->getFiltered($request);
+
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new SchoolResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new SchoolResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreSchoolRequest $request)
     {
-        //
+        try {
+            $data = $request->validated();
+            $createdModel = $this->service->create($data);
+            return $this->successResponse(new SchoolResource($createdModel), $this->nameModel . " creado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(School $school)
     {
-        //
+        try {
+            return $this->successResponse(new SchoolResource($school), $this->nameModel . " obtenido exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(School $school)
+    public function update(UpdateSchoolRequest $request, School $school)
     {
-        //
+        try {
+            $data = $request->validated();
+            $updatedModel = $this->service->update($school->id, $data);
+            return $this->successResponse(new SchoolResource($updatedModel), $this->nameModel . " actualizado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, School $school)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(School $school)
     {
-        //
+        try {
+            $this->service->delete($school->id);
+            return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
