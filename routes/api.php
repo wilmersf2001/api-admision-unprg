@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\AcademicGroupController;
+use App\Http\Controllers\AcademicProgramController;
 use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PostulantController;
@@ -141,5 +144,32 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{school}', [SchoolController::class, 'show']);
         Route::put('/{school}', [SchoolController::class, 'update']);
         Route::delete('/{school}', [SchoolController::class, 'destroy']);
+    });
+
+    // Route Academic Groups
+    Route::prefix('academic-groups')->group(function () {
+        Route::get('/', [AcademicGroupController::class, 'index']);
+        Route::post('/', [AcademicGroupController::class, 'store']);
+        Route::get('/{academicGroup}', [AcademicGroupController::class, 'show']);
+        Route::put('/{academicGroup}', [AcademicGroupController::class, 'update']);
+        Route::delete('/{academicGroup}', [AcademicGroupController::class, 'destroy']);
+    });
+
+    // Route Faculties
+    Route::prefix('faculties')->group(function () {
+        Route::get('/', [FacultyController::class, 'index']);
+        Route::post('/', [FacultyController::class, 'store']);
+        Route::get('/{faculty}', [FacultyController::class, 'show']);
+        Route::put('/{faculty}', [FacultyController::class, 'update']);
+        Route::delete('/{faculty}', [FacultyController::class, 'destroy']);
+    });
+
+    // Route Academic Programs
+    Route::prefix('academic-programs')->group(function () {
+        Route::get('/', [AcademicProgramController::class, 'index']);
+        Route::post('/', [AcademicProgramController::class, 'store']);
+        Route::get('/{academicProgram}', [AcademicProgramController::class, 'show']);
+        Route::put('/{academicProgram}', [AcademicProgramController::class, 'update']);
+        Route::delete('/{academicProgram}', [AcademicProgramController::class, 'destroy']);
     });
 });

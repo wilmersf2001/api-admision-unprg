@@ -11,7 +11,7 @@ class UpdateAcademicProgramRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,34 @@ class UpdateAcademicProgramRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'codigo' => 'sometimes|required|string|max:2',
+            'nombre' => 'sometimes|required|string',
+            'sede_id' => 'sometimes|required|integer|exists:tb_sede,id',
+            'facultad_id' => 'sometimes|required|integer|exists:tb_facultad,id',
+            'grupo_academico_id' => 'sometimes|required|integer|exists:tb_grupo_academico,id',
+            'estado' => 'sometimes|required|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'codigo.required' => 'El campo código es obligatorio.',
+            'codigo.string' => 'El campo código debe ser una cadena de texto.',
+            'codigo.max' => 'El campo código no debe exceder los 2 caracteres.',
+            'nombre.required' => 'El campo nombre es obligatorio.',
+            'nombre.string' => 'El campo nombre debe ser una cadena de texto.',
+            'sede_id.required' => 'El campo sede_id es obligatorio.',
+            'sede_id.integer' => 'El campo sede_id debe ser un número entero.',
+            'sede_id.exists' => 'El campo sede_id debe existir en la tabla tb_sede.',
+            'facultad_id.required' => 'El campo facultad_id es obligatorio.',
+            'facultad_id.integer' => 'El campo facultad_id debe ser un número entero.',
+            'facultad_id.exists' => 'El campo facultad_id debe existir en la tabla tb_facultad.',
+            'grupo_academico_id.required' => 'El campo grupo_academico_id es obligatorio.',
+            'grupo_academico_id.integer' => 'El campo grupo_academico_id debe ser un número entero.',
+            'grupo_academico_id.exists' => 'El campo grupo_academico_id debe existir en la tabla tb_grupo_academico.',
+            'estado.required' => 'El campo estado es obligatorio.',
+            'estado.boolean' => 'El campo estado debe ser verdadero o falso.',
         ];
     }
 }

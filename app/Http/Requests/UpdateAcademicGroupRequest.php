@@ -11,7 +11,7 @@ class UpdateAcademicGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,23 @@ class UpdateAcademicGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'letra' => 'sometimes|required|string|max:5',
+            'nombre' => 'sometimes|required|string|max:100',
+            'estado' => 'sometimes|required|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'letra.required' => 'La letra es obligatoria.',
+            'letra.string' => 'La letra debe ser una cadena de texto.',
+            'letra.max' => 'La letra no debe exceder los 5 caracteres.',
+            'nombre.required' => 'El nombre es obligatorio.',
+            'nombre.string' => 'El nombre debe ser una cadena de texto.',
+            'nombre.max' => 'El nombre no debe exceder los 100 caracteres.',
+            'estado.required' => 'El estado es obligatorio.',
+            'estado.boolean' => 'El estado debe ser verdadero o falso.',
         ];
     }
 }

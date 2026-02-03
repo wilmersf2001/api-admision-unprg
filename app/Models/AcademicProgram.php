@@ -57,4 +57,19 @@ class AcademicProgram extends Model
             'default' => 'id'
         ];
     }
+
+    public function sede()
+    {
+        return $this->belongsTo(Sede::class, 'sede_id');
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class, 'facultad_id');
+    }
+
+    public function academicGroup()
+    {
+        return $this->belongsTo(AcademicGroup::class, 'grupo_academico_id');
+    }
 }

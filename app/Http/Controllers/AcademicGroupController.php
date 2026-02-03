@@ -18,7 +18,7 @@ class AcademicGroupController extends Controller
     use ApiResponse, HandlesValidation;
 
     protected AcademicGroupService $service;
-    private string $nameModel = 'AcademicGroupen';
+    private string $nameModel = 'Grupo Académico';
 
     public function __construct(AcademicGroupService $service)
     {

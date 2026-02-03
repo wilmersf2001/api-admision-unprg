@@ -48,7 +48,7 @@ class FacultyController extends Controller
             $createdModel = $this->service->create($data);
             return $this->successResponse(new FacultyResource($createdModel), $this->nameModel . " creado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse('Error al crear ' . $exception, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
