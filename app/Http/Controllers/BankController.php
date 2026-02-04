@@ -2,64 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bank;
+use App\Http\Resources\BankResource;
+use App\Http\Services\BankService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
 use Illuminate\Http\Request;
 
 class BankController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected BankService $service;
+    private string $nameModel = 'Banco';
+
+    public function __construct(BankService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
-    }
+        $data = $this->service->getFiltered($request);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new BankResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new BankResource($item));
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Bank $bank)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Bank $bank)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Bank $bank)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Bank $bank)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 }

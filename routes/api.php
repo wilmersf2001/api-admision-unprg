@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicGroupController;
 use App\Http\Controllers\AcademicProgramController;
 use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SedeController;
+use App\Http\Controllers\TxtFileController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
 
@@ -171,5 +173,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{academicProgram}', [AcademicProgramController::class, 'show']);
         Route::put('/{academicProgram}', [AcademicProgramController::class, 'update']);
         Route::delete('/{academicProgram}', [AcademicProgramController::class, 'destroy']);
+    });
+
+    // Route Txt File
+    Route::prefix('txt-file')->group(function () {
+        Route::get('/', [TxtFileController::class, 'index']);
+        Route::post('/', [TxtFileController::class, 'store']);
+    });
+
+    // Route Bank
+    Route::prefix('banks')->group(function () {
+        Route::get('/', [BankController::class, 'index']);
     });
 });

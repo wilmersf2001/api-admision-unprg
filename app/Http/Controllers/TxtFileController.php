@@ -2,64 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TxtFile;
+use App\Http\Requests\StoreTxtFileRequest;
+use App\Http\Resources\TxtFileResource;
+use App\Http\Services\TxtFileService;
+use App\Http\Traits\ApiResponse;
+use App\Http\Traits\HandlesValidation;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TxtFileController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponse, HandlesValidation;
+
+    protected TxtFileService $service;
+    private string $nameModel = 'Archivo Txt';
+
+    public function __construct(TxtFileService $service)
     {
-        //
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $data = $this->service->getFiltered($request);
+
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new TxtFileResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new TxtFileResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreTxtFileRequest $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(TxtFile $txtFile)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(TxtFile $txtFile)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, TxtFile $txtFile)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(TxtFile $txtFile)
-    {
-        //
+        try {
+            $data = $request->validated();
+            $createdModel = $this->service->create($data);
+            return $this->successResponse(new TxtFileResource($createdModel), $this->nameModel . " creado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al crear ' . $exception, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -13,7 +13,7 @@ class TxtFile extends Model
     /** @use HasFactory<\Database\Factories\TxtFileFactory> */
     use HasFactory, Auditable, FlexibleQueries, softDeletes;
 
-    protected $table = 'txt_files';
+    protected $table = 'tb_archivo_txt';
 
     protected $fillable = [
         'nombre',
