@@ -28,11 +28,14 @@ class Bank extends Model
         'tipo_doc_depo',
         'observacion_depo',
         'archivo_txt_id',
+        'postulant_id',
+        'used_at',
     ];
 
     protected $casts = [
         'fecha' => 'date',
         'estado' => 'boolean',
+        'used_at' => 'datetime',
     ];
 
     protected function getFilterConfig(): array
@@ -63,5 +66,18 @@ class Bank extends Model
     public function txtFile()
     {
         return $this->belongsTo(TxtFile::class, 'archivo_txt_id');
+    }
+
+    public function postulant()
+    {
+        return $this->belongsTo(Postulant::class, 'postulant_id');
+    }
+
+    /**
+     * Verifica si el pago ya fue utilizado
+     */
+    public function isUsed(): bool
+    {
+        return $this->postulant_id !== null;
     }
 }

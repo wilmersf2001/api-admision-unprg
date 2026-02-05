@@ -41,6 +41,9 @@ Route::get('districts', [DistrictController::class, 'index']);
 Route::get('schools', [SchoolController::class, 'index']);
 Route::post('banks/verify-payment', [BankController::class, 'VerifyPayment']);
 
+// Ruta pública para registro de postulantes (requiere token de inscripción)
+Route::post('postulants', [PostulantController::class, 'store']);
+
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -137,7 +140,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Postulants
     Route::prefix('postulants')->group(function () {
         Route::get('/', [PostulantController::class, 'index']);
-        Route::post('/', [PostulantController::class, 'store']);
         Route::get('/{postulant}', [PostulantController::class, 'show']);
         Route::put('/{postulant}', [PostulantController::class, 'update']);
     });

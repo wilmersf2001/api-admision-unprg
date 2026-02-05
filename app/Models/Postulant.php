@@ -16,7 +16,7 @@ class Postulant extends Model
     protected $table = 'tb_postulante';
 
     protected $fillable = [
-        'nombre',
+        'nombres',
         'ap_paterno',
         'ap_materno',
         'fecha_nacimiento',
@@ -55,7 +55,7 @@ class Postulant extends Model
         return [
             'search' => [
                 'type' => 'global_search',
-                'columns' => ['nombre', 'ap_paterno', 'ap_materno', 'num_documento', 'correo', 'codigo'],
+                'columns' => ['nombres', 'ap_paterno', 'ap_materno', 'num_documento', 'correo', 'codigo'],
             ],
             'programa_academico_id' => [
                 'columns' => ['programa_academico_id'],
@@ -75,8 +75,16 @@ class Postulant extends Model
     protected function getSortConfig(): array
     {
         return [
-            'allowed' => ['nombre', 'ap_paterno', 'ap_materno', 'fecha_nacimiento', 'num_documento', 'correo', 'codigo', 'created_at', 'updated_at'],
+            'allowed' => ['nombres', 'ap_paterno', 'ap_materno', 'fecha_nacimiento', 'num_documento', 'correo', 'codigo', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    /**
+     * Relación con el pago del banco
+     */
+    public function bank()
+    {
+        return $this->hasOne(Bank::class, 'postulant_id');
     }
 }

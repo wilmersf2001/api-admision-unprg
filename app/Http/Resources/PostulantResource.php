@@ -16,7 +16,7 @@ class PostulantResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'nombre' => $this->nombre,
+            'nombres' => $this->nombres,
             'ap_paterno' => $this->ap_paterno,
             'ap_materno' => $this->ap_materno,
             'fecha_nacimiento' => $this->fecha_nacimiento,

@@ -29,6 +29,9 @@ class BankResource extends JsonResource
             'observacion_depo' => $this->observacion_depo,
             'archivo_txt_id' => $this->archivo_txt_id,
             'archivo_txt_nombre' => $this->txtFile ? $this->txtFile->nombre : null,
+            'is_used' => $this->isUsed(),
+            'postulant_id' => $this->postulant_id,
+            'used_at' => $this->used_at?->toDateTimeString(),
         ];
     }
 }

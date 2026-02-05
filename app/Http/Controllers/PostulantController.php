@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterPostulantRequest;
 use App\Http\Requests\StorePostulantRequest;
 use App\Http\Requests\UpdatePostulantRequest;
 use App\Http\Resources\PostulantResource;
@@ -18,7 +19,7 @@ class PostulantController extends Controller
     use ApiResponse, HandlesValidation;
 
     protected PostulantService $service;
-    private string $nameModel = 'Proceso';
+    private string $nameModel = 'Postulante';
 
     public function __construct(PostulantService $service)
     {
@@ -41,14 +42,53 @@ class PostulantController extends Controller
         ]);
     }
 
+    /**
+     * Registra un postulante usando el token de inscripción (ruta pública)
+     *
+     * @param StorePostulantRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(StorePostulantRequest $request)
     {
+        // Obtener el token del header
+        $token = $request->header('X-Inscription-Token');
+
+        if (!$token) {
+            return $this->errorResponse(
+                'Token de inscripción requerido. Verifique su pago primero.',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
         try {
             $data = $request->validated();
-            $createdModel = $this->service->create($data);
-            return $this->successResponse(new PostulantResource($createdModel), $this->nameModel . " creado exitosamente");
-        } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $postulant = $this->service->registerWithToken($data, $token);
+
+            return $this->successResponse(
+                [
+                    'postulant' => new PostulantResource($postulant),
+                    'codigo' => $postulant->codigo,
+                    'mensaje' => 'Guarde su código de inscripción: ' . $postulant->codigo
+                ],
+                'Inscripción completada exitosamente',
+                Response::HTTP_CREATED
+            );
+
+        } catch (Exception $e) {
+            // Determinar el código de respuesta según el tipo de error
+            $statusCode = Response::HTTP_BAD_REQUEST;
+
+            if (str_contains($e->getMessage(), 'expirado') ||
+                str_contains($e->getMessage(), 'Token') ||
+                str_contains($e->getMessage(), 'inválido')) {
+                $statusCode = Response::HTTP_UNAUTHORIZED;
+            }
+
+            if (str_contains($e->getMessage(), 'utilizado')) {
+                $statusCode = Response::HTTP_CONFLICT;
+            }
+
+            return $this->errorResponse($e->getMessage(), $statusCode);
         }
     }
 
