@@ -24,6 +24,15 @@ class PostulantService
         return $query->applyPagination($request); // all=true = paginado, all=false = sin paginar
     }
 
+    public function create(array $data)
+    {
+        try {
+            return $this->model->create($data);
+        }catch (\Throwable $th){
+            throw new Exception('Error al crear '. $this->nameModel. ' :' . $th->getMessage());
+        }
+    }
+
     public function update($id, array $data)
     {
         $record = $this->model->find($id);

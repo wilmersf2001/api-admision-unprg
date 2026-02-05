@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostulantRequest;
 use App\Http\Requests\UpdatePostulantRequest;
 use App\Http\Resources\PostulantResource;
 use App\Http\Services\PostulantService;
@@ -38,6 +39,17 @@ class PostulantController extends Controller
             'success' => true,
             'data' => $data
         ]);
+    }
+
+    public function store(StorePostulantRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            $createdModel = $this->service->create($data);
+            return $this->successResponse(new PostulantResource($createdModel), $this->nameModel . " creado exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function show(Postulant $Postulant)

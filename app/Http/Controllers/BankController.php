@@ -35,4 +35,38 @@ class BankController extends Controller
             'data' => $data
         ]);
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function VerifyPayment(Request $request)
+    {
+        $rules = [
+            'num_doc_depo' => 'required|string',
+            'num_documento' => 'required|string',
+            'num_oficina' => 'required|string',
+            'fecha' => 'required|date',
+            'tipo_colegio' => 'required|string|in:Nacional,Particular',
+        ];
+
+        $this->validateRequest($request, $rules);
+
+        $result = $this->service->verifyPayment($request->only(array_keys($rules)));
+
+        return response()->json([
+            'success' => true,
+            'data' => $result
+        ]);
+    }
+
+    private function validateRequest(Request $request, array $rules)
+    {
+        $validator = validator($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+            return null;
+    }
 }
