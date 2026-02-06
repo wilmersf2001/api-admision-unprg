@@ -26,6 +26,7 @@ class StorePostulantRequest extends FormRequest
     {
         return [
             // Datos personales
+            'num_voucher' => 'required|string|max:50',
             'nombres' => 'required|string|max:100',
             'ap_paterno' => 'required|string|max:100',
             'ap_materno' => 'required|string|max:100',

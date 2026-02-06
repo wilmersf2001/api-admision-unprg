@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Http\Services\BankService;
+use App\Http\Utils\Constants;
 use App\Models\Postulant;
 use Exception;
 use Illuminate\Http\Request;
@@ -63,12 +64,11 @@ class PostulantService
             $bank = $this->bankService->getBankForRegistration($payload->bank_id);
 
             // Preparar datos del postulante
-            $data['num_voucher'] = $bank->num_doc_depo;
             $data['fecha_inscripcion'] = now();
             $data['codigo'] = $this->generateCode();
             $data['ingreso'] = 0;
             $data['estado_postulante_id'] = $data['estado_postulante_id'] ?? 1; // Estado inicial
-            $data['pais_id'] = $data['pais_id'] ?? 134; // Perú por defecto
+            $data['pais_id'] = $data['pais_id'] ?? Constants::ID_PERU; // Perú por defecto
 
             // Crear el postulante
             $postulant = $this->model->create($data);

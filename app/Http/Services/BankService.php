@@ -64,7 +64,7 @@ class BankService
             ? Constants::MONTO_NACIONAL
             : Constants::MONTO_PARTICULAR;
 
-        if ($record->importe !== $montoEsperado) {
+        if ((float)$record->importe !== $montoEsperado) {
             throw new Exception('El monto del pago no coincide para colegio ' . $data['tipo_colegio']);
         }
 
