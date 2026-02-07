@@ -13,12 +13,6 @@ use Illuminate\Http\Request;
 class BankService
 {
     protected Bank $model;
-    private string $nameModel = 'Banco';
-
-    /**
-     * Tiempo de expiración del token en minutos
-     */
-    private const TOKEN_EXPIRATION_MINUTES = 30;
 
     public function __construct(Bank $model)
     {
@@ -69,7 +63,7 @@ class BankService
         }
 
         // Generar token de inscripción
-        $expirationTime = time() + (self::TOKEN_EXPIRATION_MINUTES * 60);
+        $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES * 60);
 
         $payload = [
             'bank_id' => $record->id,
@@ -85,7 +79,7 @@ class BankService
         return [
             'verified' => true,
             'token_inscripcion' => $token,
-            'expires_in' => self::TOKEN_EXPIRATION_MINUTES * 60, // segundos
+            'expires_in' => Constants::TOKEN_EXPIRATION_MINUTES * 60, // segundos
             'expires_at' => date('Y-m-d H:i:s', $expirationTime),
         ];
     }

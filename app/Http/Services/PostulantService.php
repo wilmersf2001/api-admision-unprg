@@ -11,14 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class PostulantService
 {
+    protected FileService $fileService;
     protected Postulant $model;
     protected BankService $bankService;
     private string $nameModel = 'Postulante';
 
-    public function __construct(Postulant $model, BankService $bankService)
+    public function __construct(Postulant $model, BankService $bankService, FileService $fileService)
     {
         $this->model = $model;
         $this->bankService = $bankService;
+        $this->fileService = $fileService;
     }
 
     public function getFiltered(Request $request)
@@ -65,10 +67,14 @@ class PostulantService
 
             // Preparar datos del postulante
             $data['fecha_inscripcion'] = now();
-            $data['codigo'] = $this->generateCode();
+            $data['codigo'] = substr((string) $data['num_documento'], 0, 8);
             $data['ingreso'] = 0;
             $data['estado_postulante_id'] = $data['estado_postulante_id'] ?? 1; // Estado inicial
             $data['pais_id'] = $data['pais_id'] ?? Constants::ID_PERU; // Perú por defecto
+            $imagePostulanteFile = $data['foto_postulante'] ?? null;
+            $imageDniAnversoFile = $data['dni_anverso'] ?? null;
+            $imageDniReversoFile = $data['dni_reverso'] ?? null;
+            unset($data['foto_postulante'], $data['dni_anverso'], $data['dni_reverso']); // No existen en la tabla postulantes, se guardarán como archivos relacionados
 
             // Crear el postulante
             $postulant = $this->model->create($data);
@@ -76,29 +82,31 @@ class PostulantService
             // Marcar el pago como usado
             $this->bankService->markAsUsed($bank, $postulant->id);
 
+            // Adjuntar archivos si existen
+            if ($imagePostulanteFile) {
+                $this->attachFile($postulant, $imagePostulanteFile, 'image', 'foto_postulante');
+            }
+            if ($imageDniAnversoFile) {
+                $this->attachFile($postulant, $imageDniAnversoFile, 'image', 'foto_dni_anverso');
+            }
+            if ($imageDniReversoFile) {
+                $this->attachFile($postulant, $imageDniReversoFile, 'image', 'foto_dni_reverso');
+            }
+
             return $postulant;
         });
     }
 
-    /**
-     * Genera un código único para el postulante
-     *
-     * @return string
-     */
-    private function generateCode(): string
+    private function attachFile(Postulant $postulant, $uploadedFile, string $type, string $typeEntitie): void
     {
-        $year = date('Y');
-        $lastPostulant = $this->model
-            ->whereYear('created_at', $year)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if ($lastPostulant && preg_match('/(\d+)$/', $lastPostulant->codigo, $matches)) {
-            $nextNumber = intval($matches[1]) + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        return $year . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        // Subir archivo usando FileService
+        $file = $this->fileService->upload(
+            $postulant,
+            $uploadedFile,
+            true, // isPublic
+            $type,
+            $typeEntitie,
+            'postulant_files' // directorio
+        );
     }
 }

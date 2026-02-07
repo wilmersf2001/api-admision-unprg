@@ -62,6 +62,11 @@ class StorePostulantRequest extends FormRequest
             'modalidad_id' => 'required|exists:tb_modalidad,id',
             'sede_id' => 'required|exists:tb_sede,id',
             'pais_id' => 'nullable|exists:tb_pais,id',
+
+            //Archivos (requeridos)
+            'foto_postulante' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'dni_anverso' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'dni_reverso' => 'required|file|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 
