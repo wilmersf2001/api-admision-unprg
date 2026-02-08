@@ -87,4 +87,65 @@ class Postulant extends Model
     {
         return $this->hasOne(Bank::class, 'postulant_id');
     }
+
+    public function gender()
+    {
+        return $this->belongsTo(Gender::class, 'sexo_id');
+    }
+
+    public function districtBirth()
+    {
+        return $this->belongsTo(District::class, 'distrito_nac_id');
+    }
+
+    public function districtResidence()
+    {
+        return $this->belongsTo(District::class, 'distrito_res_id');
+    }
+
+    public function addressType()
+    {
+        return $this->belongsTo(AddressType::class, 'tipo_direccion_id');
+    }
+
+    public function academicProgram()
+    {
+        return $this->belongsTo(AcademicProgram::class, 'programa_academico_id');
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class, 'colegio_id');
+    }
+
+    public function university()
+    {
+        return $this->belongsTo(University::class, 'universidad_id');
+    }
+
+    public function modality()
+    {
+        return $this->belongsTo(Modality::class, 'modalidad_id');
+    }
+
+    public function sede()
+    {
+        return $this->belongsTo(Sede::class, 'sede_id');
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'pais_id');
+    }
+
+    public function postulantState()
+    {
+        return $this->belongsTo(PostulantState::class, 'estado_postulante_id');
+    }
+
+    public function files()
+    {
+        return $this->hasMany(File::class, 'entity_id')
+            ->where('entity_type', self::class);
+    }
 }

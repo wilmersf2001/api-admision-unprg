@@ -18,14 +18,16 @@ class FileService
      * @param string|null $directory Directorio dentro del disco (opcional)
      * @return File El modelo del archivo creado
      */
-    public function upload(Model $entity, UploadedFile $file, bool $isPublic, string $type, string $typeEntitie, ?string $directory = null): File
+    public function upload(Model $entity, UploadedFile $file, bool $isPublic, string $type, string $typeEntitie, ?string $directory = null, ?string $customName = null): File
     {
         // Determinar el disco según si es público o privado(local)
         $disk = $isPublic ? 'public' : 'local';
 
-        // Generar un nombre único para el archivo
+        // Usar nombre personalizado o generar uno único con UUID
         $extension = $file->getClientOriginalExtension();
-        $name = Str::uuid() . '.' . $extension;
+        $name = $customName
+            ? $customName . '.' . $extension
+            : Str::uuid() . '.' . $extension;
 
         // Construir la ruta completa
         $path = $directory ? $directory . '/' . $name : $name;

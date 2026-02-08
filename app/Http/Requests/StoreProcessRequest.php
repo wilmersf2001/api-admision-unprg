@@ -22,7 +22,7 @@ class StoreProcessRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'numero' => 'required|string|max:50|unique:tb_proceso,numero',
+            'numero' => 'required|string|max:50',
             'descripcion' => 'nullable|string|max:255',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
@@ -35,7 +35,6 @@ class StoreProcessRequest extends FormRequest
             'numero.required' => 'El campo número es obligatorio.',
             'numero.string' => 'El campo número debe ser una cadena de texto.',
             'numero.max' => 'El campo número no debe exceder los 50 caracteres.',
-            'numero.unique' => 'El número proporcionado ya existe.',
             'descripcion.string' => 'El campo descripción debe ser una cadena de texto.',
             'descripcion.max' => 'El campo descripción no debe exceder los 255 caracteres.',
             'fecha_inicio.required' => 'El campo fecha de inicio es obligatorio.',

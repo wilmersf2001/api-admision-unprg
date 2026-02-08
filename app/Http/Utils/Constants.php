@@ -15,6 +15,7 @@ class Constants
   // CARPETAS DE ARCHIVOS
   public const CARPETA_ARCHIVOS_VALIDOS = 'archivos_validos/';
   public const CARPETA_ARCHIVOS_OBSERVADOS = 'archivos_observados/';
+  public const CARPETA_ARCHIVOS_RECTIFICADOS = 'archivos_rectificados/';
   public const CARPETA_FOTO_CARNET = 'foto_carnet/';
   public const CARPETA_DNI_ANVERSO = 'dni_anverso/';
   public const CARPETA_DNI_REVERSO = 'dni_reverso/';
@@ -25,6 +26,7 @@ class Constants
 
   public const RUTAS_FOTOS_VALIDAS = [Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_FOTO_CARNET, Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_DNI_ANVERSO, Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_DNI_REVERSO];
   public const RUTAS_FOTOS_OBSERVADAS = [Constants::CARPETA_ARCHIVOS_OBSERVADOS . Constants::CARPETA_FOTO_CARNET, Constants::CARPETA_ARCHIVOS_OBSERVADOS . Constants::CARPETA_DNI_ANVERSO, Constants::CARPETA_ARCHIVOS_OBSERVADOS . Constants::CARPETA_DNI_REVERSO];
+  public const RUTAS_FOTOS_RECTIFICADAS = [Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_FOTO_CARNET, Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_DNI_ANVERSO, Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_DNI_REVERSO];
 
   //ESTADOS DE POSTULANTES
   public const ESTADO_INSCRITO = '1';

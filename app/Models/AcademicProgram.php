@@ -28,6 +28,16 @@ class AcademicProgram extends Model
         'estado' => 'boolean',
     ];
 
+    public function setCodigoAttribute($value)
+    {
+        $this->attributes['codigo'] = strtoupper($value);
+    }
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
     protected function getFilterConfig(): array
     {
         return [

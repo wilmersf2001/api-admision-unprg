@@ -154,6 +154,7 @@ class BankService
     public function markAsUsed(Bank $bank, int $postulantId): void
     {
         $bank->update([
+            'estado' => true,
             'postulant_id' => $postulantId,
             'used_at' => now(),
         ]);

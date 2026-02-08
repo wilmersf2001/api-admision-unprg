@@ -26,6 +26,11 @@ class Sede extends Model
         'estado' => 'boolean',
     ];
 
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
     protected function getFilterConfig(): array
     {
         return [

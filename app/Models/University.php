@@ -25,12 +25,20 @@ class University extends Model
         'estado' => 'boolean',
     ];
 
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
     protected function getFilterConfig(): array
     {
         return [
             'search' => [
                 'type' => 'global_search',
                 'columns' => ['nombre'],
+            ],
+            'tipo' => [
+                'columns' => ['tipo'],
             ],
             'estado' => [
                 'columns' => ['estado'],

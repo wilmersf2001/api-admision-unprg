@@ -2,12 +2,12 @@
 
 namespace App\Http\Services;
 
-use App\Http\Services\BankService;
 use App\Http\Utils\Constants;
 use App\Models\Postulant;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PostulantService
 {
@@ -25,7 +25,7 @@ class PostulantService
 
     public function getFiltered(Request $request)
     {
-        $query = $this->model->newQuery();
+        $query = $this->model->newQuery()->with('files');
         $query->applyFilters($request);
         $query->applySort($request);
         return $query->applyPagination($request);
@@ -83,21 +83,186 @@ class PostulantService
             $this->bankService->markAsUsed($bank, $postulant->id);
 
             // Adjuntar archivos si existen
+            $numDocumento = $data['num_documento'];
             if ($imagePostulanteFile) {
-                $this->attachFile($postulant, $imagePostulanteFile, 'image', 'foto_postulante');
+                $this->attachFile($postulant, $imagePostulanteFile, 'image', 'foto_postulante', Constants::RUTA_FOTO_CARNET_INSCRIPTO, $numDocumento);
             }
             if ($imageDniAnversoFile) {
-                $this->attachFile($postulant, $imageDniAnversoFile, 'image', 'foto_dni_anverso');
+                $this->attachFile($postulant, $imageDniAnversoFile, 'image', 'foto_dni_anverso', Constants::RUTA_DNI_ANVERSO_INSCRIPTO, 'A-' . $numDocumento);
             }
             if ($imageDniReversoFile) {
-                $this->attachFile($postulant, $imageDniReversoFile, 'image', 'foto_dni_reverso');
+                $this->attachFile($postulant, $imageDniReversoFile, 'image', 'foto_dni_reverso', Constants::RUTA_DNI_REVERSO_INSCRIPTO, 'R-' . $numDocumento);
             }
 
             return $postulant;
         });
     }
 
-    private function attachFile(Postulant $postulant, $uploadedFile, string $type, string $typeEntitie): void
+    /**
+     * Lista postulantes con archivos válidos (las 3 carpetas) y estado inscrito
+     */
+    public function getValidFiles(Request $request)
+    {
+        return $this->getPostulantsByFolder(
+            Constants::CARPETA_ARCHIVOS_VALIDOS,
+            Constants::ESTADO_INSCRITO,
+            $request
+        );
+    }
+
+    /**
+     * Lista postulantes con archivos observados y estado inscrito
+     */
+    public function getObservedFiles(Request $request)
+    {
+        return $this->getPostulantsByFolder(
+            Constants::CARPETA_ARCHIVOS_OBSERVADOS,
+            Constants::ESTADO_INSCRITO,
+            $request
+        );
+    }
+
+    /**
+     * Lista postulantes con archivos observados reiterados y estado observado
+     */
+    public function getObservedReiteratedFiles(Request $request)
+    {
+        return $this->getPostulantsByFolder(
+            Constants::CARPETA_ARCHIVOS_OBSERVADOS,
+            Constants::ESTADO_OBSERVADO,
+            $request
+        );
+    }
+
+    /**
+     * Lista postulantes con archivos rectificados y estado envío observado
+     */
+    public function getRectifiedFiles(Request $request)
+    {
+        return $this->getPostulantsByFolder(
+            Constants::CARPETA_ARCHIVOS_RECTIFICADOS,
+            Constants::ESTADO_ENVIO_OBSERVADO,
+            $request
+        );
+    }
+
+    /**
+     * Obtiene postulantes cuyo DNI existe en las 3 subcarpetas de la carpeta indicada
+     * y cuyo estado_postulante_id coincide con el estado dado.
+     */
+    private function getPostulantsByFolder(string $folder, string $estadoId, Request $request)
+    {
+        $disk = Constants::DISK_STORAGE;
+
+        $dnisFotoCarnet = $this->extractDnisFromFolder($disk, $folder . Constants::CARPETA_FOTO_CARNET, '');
+        $dnisDniAnverso = $this->extractDnisFromFolder($disk, $folder . Constants::CARPETA_DNI_ANVERSO, 'A-');
+        $dnisDniReverso = $this->extractDnisFromFolder($disk, $folder . Constants::CARPETA_DNI_REVERSO, 'R-');
+
+        // Solo DNIs que existen en las 3 carpetas
+        $dnisCompletos = $dnisFotoCarnet->intersect($dnisDniAnverso)->intersect($dnisDniReverso)->values();
+
+        $query = $this->model->newQuery()->with('files');
+        $query->whereIn('num_documento', $dnisCompletos)
+              ->where('estado_postulante_id', $estadoId);
+        $query->applyFilters($request);
+        $query->applySort($request);
+
+        return $query->applyPagination($request);
+    }
+
+    /**
+     * Extrae los DNIs (sin prefijo) de los archivos de una carpeta
+     */
+    private function extractDnisFromFolder(string $disk, string $directory, string $prefix): \Illuminate\Support\Collection
+    {
+        $files = Storage::disk($disk)->files($directory);
+
+        return collect($files)->map(function ($file) use ($prefix) {
+            $name = pathinfo($file, PATHINFO_FILENAME);
+
+            if ($prefix !== '' && str_starts_with($name, $prefix)) {
+                $name = substr($name, strlen($prefix));
+            }
+
+            return $name;
+        })->unique();
+    }
+
+    public function copyFilesToObserved(string $numDocumento): array
+    {
+        return $this->copyFilesToFolder($numDocumento, Constants::CARPETA_ARCHIVOS_OBSERVADOS);
+    }
+
+    public function copyFilesToValid(string $numDocumento): array
+    {
+        return $this->copyFilesToFolder($numDocumento, Constants::CARPETA_ARCHIVOS_VALIDOS);
+    }
+
+    public function copyFilesToRectified(string $numDocumento): array
+    {
+        return $this->copyFilesToFolder($numDocumento, Constants::CARPETA_ARCHIVOS_RECTIFICADOS);
+    }
+
+    private function copyFilesToFolder(string $numDocumento, string $destFolder): array
+    {
+        $disk = Constants::DISK_STORAGE;
+        $copied = [];
+
+        $fileMappings = [
+            [
+                'source' => Constants::RUTA_FOTO_CARNET_INSCRIPTO,
+                'dest' => $destFolder . Constants::CARPETA_FOTO_CARNET,
+                'prefix' => '',
+            ],
+            [
+                'source' => Constants::RUTA_DNI_ANVERSO_INSCRIPTO,
+                'dest' => $destFolder . Constants::CARPETA_DNI_ANVERSO,
+                'prefix' => 'A-',
+            ],
+            [
+                'source' => Constants::RUTA_DNI_REVERSO_INSCRIPTO,
+                'dest' => $destFolder . Constants::CARPETA_DNI_REVERSO,
+                'prefix' => 'R-',
+            ],
+        ];
+
+        foreach ($fileMappings as $mapping) {
+            $fileName = $mapping['prefix'] . $numDocumento;
+            $sourceFile = $this->findFileByName($disk, $mapping['source'], $fileName);
+
+            if (!$sourceFile) {
+                continue;
+            }
+
+            $extension = pathinfo($sourceFile, PATHINFO_EXTENSION);
+            $destPath = $mapping['dest'] . $fileName . '.' . $extension;
+
+            Storage::disk($disk)->copy($sourceFile, $destPath);
+            $copied[] = $destPath;
+        }
+
+        if (empty($copied)) {
+            throw new Exception('No se encontraron archivos del postulante con documento: ' . $numDocumento);
+        }
+
+        return $copied;
+    }
+
+    private function findFileByName(string $disk, string $directory, string $fileName): ?string
+    {
+        $files = Storage::disk($disk)->files($directory);
+
+        foreach ($files as $file) {
+            $nameWithoutExt = pathinfo($file, PATHINFO_FILENAME);
+            if ($nameWithoutExt === $fileName) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
+    private function attachFile(Postulant $postulant, $uploadedFile, string $type, string $typeEntitie, string $directory, string $customName): void
     {
         // Subir archivo usando FileService
         $file = $this->fileService->upload(
@@ -106,7 +271,8 @@ class PostulantService
             true, // isPublic
             $type,
             $typeEntitie,
-            'postulant_files' // directorio
+            $directory,
+            $customName
         );
     }
 }

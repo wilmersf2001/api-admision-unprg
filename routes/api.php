@@ -5,6 +5,7 @@ use App\Http\Controllers\AcademicProgramController;
 use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamController;
@@ -140,6 +141,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Postulants
     Route::prefix('postulants')->group(function () {
         Route::get('/', [PostulantController::class, 'index']);
+        Route::get('/valid-files', [PostulantController::class, 'validFiles']);
+        Route::get('/observed-files', [PostulantController::class, 'observedFiles']);
+        Route::get('/observed-reiterated-files', [PostulantController::class, 'observedReiteratedFiles']);
+        Route::get('/rectified-files', [PostulantController::class, 'rectifiedFiles']);
+        Route::post('/{postulant}/copy-to-observed', [PostulantController::class, 'copyFilesToObserved']);
+        Route::post('/{postulant}/copy-to-valid', [PostulantController::class, 'copyFilesToValid']);
+        Route::post('/{postulant}/copy-to-rectified', [PostulantController::class, 'copyFilesToRectified']);
         Route::get('/{postulant}', [PostulantController::class, 'show']);
         Route::put('/{postulant}', [PostulantController::class, 'update']);
     });
@@ -188,5 +196,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Bank
     Route::prefix('banks')->group(function () {
         Route::get('/', [BankController::class, 'index']);
+    });
+
+    // Route Countries
+    Route::prefix('countries')->group(function () {
+        Route::get('/', [CountryController::class, 'index']);
     });
 });

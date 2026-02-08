@@ -21,6 +21,11 @@ class District extends Model
         'provincia_id',
     ];
 
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
     protected function getFilterConfig(): array
     {
         return [

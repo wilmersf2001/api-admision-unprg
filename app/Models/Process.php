@@ -29,6 +29,16 @@ class Process extends Model
         'estado' => 'boolean',
     ];
 
+    public function setNumeroAttribute($value)
+    {
+        $this->attributes['numero'] = strtoupper($value);
+    }
+
+    public function setDescripcionAttribute($value)
+    {
+        $this->attributes['descripcion'] = strtoupper($value);
+    }
+
     protected function getFilterConfig(): array
     {
         return [

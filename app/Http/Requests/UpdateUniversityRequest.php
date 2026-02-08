@@ -30,7 +30,7 @@ class UpdateUniversityRequest extends FormRequest
                 'max:255',
                 Rule::unique('tb_universidad', 'nombre')->ignore($this->route('university')),
             ],
-            'tipo' => 'sometimes|required|string|in:Publica,Privada',
+            'tipo' => 'sometimes|required|string|between:1,2',
             'estado' => 'sometimes|required|boolean',
         ];
     }
@@ -44,7 +44,7 @@ class UpdateUniversityRequest extends FormRequest
             'nombre.unique' => 'El nombre de la universidad ya existe.',
             'tipo.required' => 'El tipo de universidad es obligatorio.',
             'tipo.string' => 'El tipo de universidad debe ser una cadena de texto.',
-            'tipo.in' => 'El tipo de universidad debe ser "Publica" o "Privada".',
+            'tipo.between' => 'El tipo de universidad debe ser 1 (Pública) o 2 (Privada).',
             'estado.required' => 'El estado de la universidad es obligatorio.',
             'estado.boolean' => 'El estado de la universidad debe ser verdadero o falso.',
         ];

@@ -23,7 +23,7 @@ class StoreUniversityRequest extends FormRequest
     {
         return [
             'nombre' => 'required|string|max:255|unique:tb_universidad,nombre',
-            'tipo' => 'required|string|in:Publica,Privada',
+            'tipo' => 'required|string|between:1,2',
         ];
     }
 
@@ -36,7 +36,7 @@ class StoreUniversityRequest extends FormRequest
             'nombre.unique' => 'El nombre de la universidad ya existe.',
             'tipo.required' => 'El tipo de universidad es obligatorio.',
             'tipo.string' => 'El tipo de universidad debe ser una cadena de texto.',
-            'tipo.in' => 'El tipo de universidad debe ser "Publica" o "Privada".',
+            'tipo.between' => 'El tipo de universidad debe ser 1 (Pública) o 2 (Privada).',
         ];
     }
 }

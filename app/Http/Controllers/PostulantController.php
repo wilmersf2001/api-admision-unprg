@@ -111,4 +111,80 @@ class PostulantController extends Controller
             return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function validFiles(Request $request)
+    {
+        return $this->respondWithFileList($this->service->getValidFiles($request));
+    }
+
+    public function observedFiles(Request $request)
+    {
+        return $this->respondWithFileList($this->service->getObservedFiles($request));
+    }
+
+    public function observedReiteratedFiles(Request $request)
+    {
+        return $this->respondWithFileList($this->service->getObservedReiteratedFiles($request));
+    }
+
+    public function rectifiedFiles(Request $request)
+    {
+        return $this->respondWithFileList($this->service->getRectifiedFiles($request));
+    }
+
+    private function respondWithFileList($data)
+    {
+        if (method_exists($data, 'getCollection')) {
+            $data->setCollection($data->getCollection()->map(fn($item) => new PostulantResource($item)));
+        } else {
+            $data = $data->map(fn($item) => new PostulantResource($item));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    public function copyFilesToObserved(Postulant $postulant)
+    {
+        try {
+            $copied = $this->service->copyFilesToObserved($postulant->num_documento);
+
+            return $this->successResponse(
+                ['archivos_copiados' => $copied],
+                'Archivos copiados a observados exitosamente'
+            );
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function copyFilesToValid(Postulant $postulant)
+    {
+        try {
+            $copied = $this->service->copyFilesToValid($postulant->num_documento);
+
+            return $this->successResponse(
+                ['archivos_copiados' => $copied],
+                'Archivos copiados a válidos exitosamente'
+            );
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function copyFilesToRectified(Postulant $postulant)
+    {
+        try {
+            $copied = $this->service->copyFilesToRectified($postulant->num_documento);
+
+            return $this->successResponse(
+                ['archivos_copiados' => $copied],
+                'Archivos copiados a rectificados exitosamente'
+            );
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
 }

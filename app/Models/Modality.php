@@ -35,9 +35,6 @@ class Modality extends Model
             'search' => [
                 'type' => 'global_search',
                 'columns' => ['descripcion'],
-                'relations' => [
-                    'exam' => ['descripcion'],
-                ],
             ],
             'estado' => [
                 'columns' => ['estado'],
@@ -46,6 +43,11 @@ class Modality extends Model
                 'columns' => ['examen_id'],
             ],
         ];
+    }
+
+    public function setDescripcionAttribute($value)
+    {
+        $this->attributes['descripcion'] = strtoupper($value);
     }
 
     protected function getSortConfig(): array

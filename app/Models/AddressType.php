@@ -24,6 +24,11 @@ class AddressType extends Model
         'estado' => 'boolean',
     ];
 
+    public function setDescripcionAttribute($value)
+    {
+        $this->attributes['descripcion'] = strtoupper($value);
+    }
+
     protected function getFilterConfig(): array
     {
         return [
