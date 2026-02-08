@@ -30,6 +30,9 @@ class School extends Model
                 'type' => 'global_search',
                 'columns' => ['nombre', 'centro_poblado', 'ubigeo'],
             ],
+            'tipo' => [
+                'columns' => ['tipo'],
+            ],
             'distrito_id' => [
                 'columns' => ['distrito_id'],
             ],

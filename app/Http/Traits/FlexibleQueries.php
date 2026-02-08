@@ -73,7 +73,7 @@ trait FlexibleQueries
 
         // Para filtros especiales como exists, no necesitamos valor
         if ($value === null || $value === '') {
-            if (($config['type'] ?? 'simple') !== 'exists') {
+            if (!in_array($config['type'] ?? 'simple', ['exists', 'date_range', 'number_range'])) {
                 return;
             }
         }

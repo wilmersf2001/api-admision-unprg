@@ -18,6 +18,7 @@ class TxtFile extends Model
     protected $fillable = [
         'nombre',
         'cantidad_registros',
+        'created_at'
     ];
 
     protected function getFilterConfig(): array
@@ -26,6 +27,10 @@ class TxtFile extends Model
             'search' => [
                 'type' => 'global_search',
                 'columns' => ['nombre', 'cantidad_registros'],
+            ],
+            'created_at' => [
+                'type' => 'date_range',
+                'columns' => ['created_at'],
             ],
         ];
     }
