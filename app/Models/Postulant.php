@@ -50,6 +50,9 @@ class Postulant extends Model
         'estado_postulante_id',
     ];
 
+    const DOCUMENT_TYPE_DNI = "1";
+    const DOCUMENT_TYPE_CE = "2";
+
     protected function getFilterConfig(): array
     {
         return [

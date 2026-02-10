@@ -187,4 +187,13 @@ class PostulantController extends Controller
             return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
+
+    public function getFile(Postulant $postulant)
+    {
+        try {
+            return $this->service->getFilePDF($postulant->id);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
+        }
+    }
 }

@@ -29,6 +29,12 @@ class Process extends Model
         'estado' => 'boolean',
     ];
 
+    public static function getProcessNumber(): ?string
+    {
+        $process = self::where('estado', 1)->first();
+        return $process ? date('Y', strtotime($process->fecha_inicio)) . ' - ' . $process->numero : null;
+    }
+
     public function setNumeroAttribute($value)
     {
         $this->attributes['numero'] = strtoupper($value);

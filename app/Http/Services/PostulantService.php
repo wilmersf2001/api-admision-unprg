@@ -3,7 +3,10 @@
 namespace App\Http\Services;
 
 use App\Http\Utils\Constants;
+use App\Http\Utils\UtilFunction;
 use App\Models\Postulant;
+use App\Models\Process;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,15 +15,17 @@ use Illuminate\Support\Facades\Storage;
 class PostulantService
 {
     protected FileService $fileService;
+    protected QrCodeService $qrCodeService;
     protected Postulant $model;
     protected BankService $bankService;
     private string $nameModel = 'Postulante';
 
-    public function __construct(Postulant $model, BankService $bankService, FileService $fileService)
+    public function __construct(Postulant $model, BankService $bankService, FileService $fileService, QrCodeService $qrCodeService)
     {
         $this->model = $model;
         $this->bankService = $bankService;
         $this->fileService = $fileService;
+        $this->qrCodeService = $qrCodeService;
     }
 
     public function getFiltered(Request $request)
@@ -94,8 +99,60 @@ class PostulantService
                 $this->attachFile($postulant, $imageDniReversoFile, 'image', 'foto_dni_reverso', Constants::RUTA_DNI_REVERSO_INSCRIPTO, 'R-' . $numDocumento);
             }
 
+            $this->qrCodeService->save($postulant);
+
             return $postulant;
         });
+    }
+
+    public function getFilePDF($id)
+    {
+        try {
+            $postulant = Postulant::findOrFail($id);
+            $today = UtilFunction::getDateToday();
+            $pathImagePostulante =  UtilFunction::getImagePathByDni($postulant);
+            $process = Process::getProcessNumber();
+            $lugarNacimiento = $postulant->tipo_documento === Postulant::DOCUMENT_TYPE_DNI ? UtilFunction::getLocationByDistrito($postulant->distrito_nac_id) : $postulant->country->nombre;
+            $school = $postulant->school;
+
+            if ($postulant->distrito_res_id == $postulant->distrito_nac_id) {
+                $lugarResidencia = $lugarNacimiento;
+            } else {
+                $lugarResidencia = UtilFunction::getLocationByDistrito($postulant->distrito_res_id);
+            }
+
+            if ($school->distrito_id == $postulant->distrito_nac_id) {
+                $lugarColegio = $lugarNacimiento;
+            } else {
+                if ($school->distrito_id == $postulant->distrito_res_id) {
+                    $lugarColegio = $lugarResidencia;
+                } else {
+                    $lugarColegio = UtilFunction::getLocationByDistrito($school->distrito_id);
+                }
+            }
+
+            $data = [
+                'postulante' => $postulant,
+                'resultadoQr' => $this->qrCodeService->generateData($postulant),
+                'programaAcademico' => $postulant->academicProgram->nombre,
+                'modalidad' => $postulant->modality->nombre,
+                'sede' => $postulant->sede->nombre,
+                'colegio' => $school->nombre,
+                'lugarNacimiento' => UtilFunction::formatearLocalizacion($lugarNacimiento),
+                'lugarResidencia' => UtilFunction::formatearLocalizacion($lugarResidencia),
+                'lugarColegio' => UtilFunction::formatearLocalizacion($lugarColegio),
+                'process' => $process,
+                'today' => $today,
+                'tipoColegio' => $school->tipo == 1 ? 'Nacional' : 'Privado',
+                'laberBirth' => $postulant->tipo_documento == 1 ? 'Lugar de nacimiento' : 'País de procedencia',
+                'base64ImagePostulante' => "data:image/png;base64," . base64_encode(file_get_contents(public_path($pathImagePostulante))),
+                'base64ImageLogoUnprg' => "data:image/png;base64," . base64_encode(file_get_contents(public_path('images/logo_color.png'))),
+            ];
+
+            return PDF::loadView('reports.pdf-postulante', $data)->stream();
+        } catch (Exception $e) {
+            throw new Exception('Error al generar PDF: ' . $e->getMessage());
+        }
     }
 
     /**

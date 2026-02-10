@@ -141,6 +141,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Postulants
     Route::prefix('postulants')->group(function () {
         Route::get('/', [PostulantController::class, 'index']);
+        Route::get('/{postulant}/postulant-file', [PostulantController::class, 'getFile']);
         Route::get('/valid-files', [PostulantController::class, 'validFiles']);
         Route::get('/observed-files', [PostulantController::class, 'observedFiles']);
         Route::get('/observed-reiterated-files', [PostulantController::class, 'observedReiteratedFiles']);
