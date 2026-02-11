@@ -18,6 +18,7 @@ use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SedeController;
+use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\TxtFileController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
@@ -44,6 +45,8 @@ Route::post('banks/verify-payment', [BankController::class, 'VerifyPayment']);
 
 // Ruta pública para registro de postulantes (requiere token de inscripción)
 Route::post('postulants', [PostulantController::class, 'store']);
+Route::post('postulants/check-registration', [PostulantController::class, 'checkRegistration']);
+Route::post('postulants/rectify-files', [PostulantController::class, 'rectifyFiles']);
 
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {
@@ -203,4 +206,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('countries')->group(function () {
         Route::get('/', [CountryController::class, 'index']);
     });
+
+    // Route Send Email
+    Route::post("/send-email-postulants", [SendMailController::class, "sendMail"]);
 });

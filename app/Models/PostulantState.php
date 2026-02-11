@@ -24,6 +24,15 @@ class PostulantState extends Model
         'estado' => 'boolean',
     ];
 
+    const INSCRITO_WEB = 1;
+    const ARCHIVOS_OBSERVADOS = 2;
+    const ARCHIVOS_ENVIO_OBSERVADOS = 3;
+    const VALIDADO_ENVIADO_CORREO = 4;
+    const CARNET_IMPRESO_PENDIENTE_ENTREGA = 5;
+    const HUELLA_DIGITAL = 6;
+    const CARNET_ENTREGADO = 7;
+    const INSCRIPCION_ANULADA = 8;
+
     public function setDescripcionAttribute($value)
     {
         $this->attributes['descripcion'] = strtoupper($value);

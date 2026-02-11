@@ -56,4 +56,17 @@ class District extends Model
     {
         return $this->belongsTo(Province::class, 'provincia_id');
     }
+
+    public static function getLocationByDistrito($id)
+    {
+        $district = self::with('province.department')->findOrFail($id);
+        $districtName = $district->nombre;
+        $provinceName = $district->province->nombre;
+        $departmentName = $district->province->department->nombre;
+        return [
+            'departamento' => $departmentName,
+            'provincia' => $provinceName,
+            'distrito' => $districtName
+        ];
+    }
 }

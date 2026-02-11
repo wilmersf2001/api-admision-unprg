@@ -196,4 +196,77 @@ class PostulantController extends Controller
             return $this->errorResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
         }
     }
+
+    public function checkRegistration(Request $request)
+    {
+        $validator = validator($request->all(), [
+            'num_documento' => 'required|string',
+            'num_doc_depo' => 'required|string',
+        ], [
+            'num_documento.required' => 'El número de documento es obligatorio.',
+            'num_doc_depo.required' => 'El número de documento del depositante es obligatorio.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+        try {
+            $result = $this->service->checkRegistration($request->only(['num_documento', 'num_doc_depo']));
+
+            return $this->successResponse([
+                'postulant' => new PostulantResource($result['postulant']),
+                'token_rectificacion' => $result['token_rectificacion'],
+                'expires_in' => $result['expires_in'],
+                'expires_at' => $result['expires_at'],
+            ], 'Postulante encontrado exitosamente');
+
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
+        }
+    }
+
+    public function rectifyFiles(Request $request)
+    {
+        $validator = validator($request->all(), [
+            'foto_postulante' => 'nullable|image|max:2048',
+            'dni_anverso' => 'nullable|image|max:2048',
+            'dni_reverso' => 'nullable|image|max:2048',
+        ], [
+            'image' => 'El campo :attribute debe ser una imagen.',
+            'max' => 'El campo :attribute no debe superar los 2MB.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+        $token = $request->header('X-Rectification-Token');
+
+        if (!$token) {
+            return $this->errorResponse(
+                'Token de rectificación requerido. Verifique su registro primero.',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        try {
+            $data = $request->only(['foto_postulante', 'dni_anverso', 'dni_reverso']);
+            $postulant = $this->service->rectifyFiles($data, $token);
+
+            return $this->successResponse(
+                new PostulantResource($postulant),
+                'Archivos rectificados exitosamente'
+            );
+
+        } catch (Exception $e) {
+            $statusCode = Response::HTTP_BAD_REQUEST;
+
+            if (str_contains($e->getMessage(), 'expirado') || str_contains($e->getMessage(), 'Token') || str_contains($e->getMessage(), 'inválido')) {
+                $statusCode = Response::HTTP_UNAUTHORIZED;
+            }
+
+            return $this->errorResponse($e->getMessage(), $statusCode);
+        }
+    }
 }

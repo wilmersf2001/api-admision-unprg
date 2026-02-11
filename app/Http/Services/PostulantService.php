@@ -4,10 +4,14 @@ namespace App\Http\Services;
 
 use App\Http\Utils\Constants;
 use App\Http\Utils\UtilFunction;
+use App\Models\Bank;
+use App\Models\District;
 use App\Models\Postulant;
 use App\Models\Process;
+use App\Models\School;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -110,15 +114,15 @@ class PostulantService
         try {
             $postulant = Postulant::findOrFail($id);
             $today = UtilFunction::getDateToday();
-            $pathImagePostulante =  UtilFunction::getImagePathByDni($postulant);
+            $pathImagePostulante =  Postulant::getImagePathByDni($postulant);
             $process = Process::getProcessNumber();
-            $lugarNacimiento = $postulant->tipo_documento === Postulant::DOCUMENT_TYPE_DNI ? UtilFunction::getLocationByDistrito($postulant->distrito_nac_id) : $postulant->country->nombre;
+            $lugarNacimiento = $postulant->tipo_documento === Postulant::DOCUMENT_TYPE_DNI ? District::getLocationByDistrito($postulant->distrito_nac_id) : $postulant->country->nombre;
             $school = $postulant->school;
 
             if ($postulant->distrito_res_id == $postulant->distrito_nac_id) {
                 $lugarResidencia = $lugarNacimiento;
             } else {
-                $lugarResidencia = UtilFunction::getLocationByDistrito($postulant->distrito_res_id);
+                $lugarResidencia = District::getLocationByDistrito($postulant->distrito_res_id);
             }
 
             if ($school->distrito_id == $postulant->distrito_nac_id) {
@@ -127,7 +131,7 @@ class PostulantService
                 if ($school->distrito_id == $postulant->distrito_res_id) {
                     $lugarColegio = $lugarResidencia;
                 } else {
-                    $lugarColegio = UtilFunction::getLocationByDistrito($school->distrito_id);
+                    $lugarColegio = District::getLocationByDistrito($school->distrito_id);
                 }
             }
 
@@ -143,8 +147,8 @@ class PostulantService
                 'lugarColegio' => UtilFunction::formatearLocalizacion($lugarColegio),
                 'process' => $process,
                 'today' => $today,
-                'tipoColegio' => $school->tipo == 1 ? 'Nacional' : 'Privado',
-                'laberBirth' => $postulant->tipo_documento == 1 ? 'Lugar de nacimiento' : 'País de procedencia',
+                'tipoColegio' => $school->tipo == School::TYPE_NATIONAL ? 'Nacional' : 'Privado',
+                'laberBirth' => $postulant->tipo_documento == Postulant::DOCUMENT_TYPE_DNI ? 'Lugar de nacimiento' : 'País de procedencia',
                 'base64ImagePostulante' => "data:image/png;base64," . base64_encode(file_get_contents(public_path($pathImagePostulante))),
                 'base64ImageLogoUnprg' => "data:image/png;base64," . base64_encode(file_get_contents(public_path('images/logo_color.png'))),
             ];
@@ -317,6 +321,112 @@ class PostulantService
         }
 
         return null;
+    }
+
+    /**
+     * Verifica si un postulante está registrado buscando por datos del banco
+     * y genera un token de rectificación con 5 minutos de expiración
+     */
+    public function checkRegistration(array $data): array
+    {
+        $bank = Bank::where('num_documento', $data['num_documento'])
+            ->where('num_doc_depo', $data['num_doc_depo'])
+            ->whereNotNull('postulant_id')
+            ->with('postulant')
+            ->first();
+
+        if (!$bank || !$bank->postulant) {
+            throw new Exception('No se encontró un postulante registrado con los datos proporcionados.');
+        }
+
+        $postulant = $bank->postulant->load('files');
+
+        // Generar token de rectificación con 5 minutos de expiración
+        $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES * 60);
+
+        $payload = [
+            'postulant_id' => $postulant->id,
+            'bank_id' => $bank->id,
+            'num_documento' => $data['num_documento'],
+            'num_doc_depo' => $data['num_doc_depo'],
+            'type' => 'rectification',
+            'iat' => time(),
+            'exp' => $expirationTime,
+        ];
+
+        $token = JWT::encode($payload, config('app.key'), 'HS256');
+
+        return [
+            'postulant' => $postulant,
+            'token_rectificacion' => $token,
+            'expires_in' => Constants::TOKEN_EXPIRATION_MINUTES * 60,
+            'expires_at' => date('Y-m-d H:i:s', $expirationTime),
+        ];
+    }
+
+    /**
+     * Valida el token de rectificación y retorna el payload
+     */
+    public function validateRectificationToken(string $token): object
+    {
+        try {
+            $payload = JWT::decode($token, new \Firebase\JWT\Key(config('app.key'), 'HS256'));
+
+            if (!isset($payload->type) || $payload->type !== 'rectification') {
+                throw new Exception('Token de rectificación inválido.');
+            }
+
+            return $payload;
+        } catch (\Firebase\JWT\ExpiredException $e) {
+            throw new Exception('El tiempo para rectificar ha expirado. Verifique su registro nuevamente.');
+        } catch (Exception $e) {
+            if (str_contains($e->getMessage(), 'expirado') || str_contains($e->getMessage(), 'rectificar')) {
+                throw $e;
+            }
+            throw new Exception('Token de rectificación inválido.');
+        }
+    }
+
+    /**
+     * Rectifica las fotos de un postulante guardándolas en archivos_rectificados
+     */
+    public function rectifyFiles(array $data, string $token): Postulant
+    {
+        $payload = $this->validateRectificationToken($token);
+
+        $postulant = $this->model->find($payload->postulant_id);
+
+        if (!$postulant) {
+            throw new Exception('Postulante no encontrado.');
+        }
+
+        $numDocumento = $postulant->num_documento;
+
+        if (isset($data['foto_postulante'])) {
+            $this->attachFile(
+                $postulant, $data['foto_postulante'], 'image', 'foto_postulante_rectificado',
+                Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_FOTO_CARNET, $numDocumento
+            );
+        }
+
+        if (isset($data['dni_anverso'])) {
+            $this->attachFile(
+                $postulant, $data['dni_anverso'], 'image', 'foto_dni_anverso_rectificado',
+                Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_DNI_ANVERSO, 'A-' . $numDocumento
+            );
+        }
+
+        if (isset($data['dni_reverso'])) {
+            $this->attachFile(
+                $postulant, $data['dni_reverso'], 'image', 'foto_dni_reverso_rectificado',
+                Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_DNI_REVERSO, 'R-' . $numDocumento
+            );
+        }
+
+        // Actualizar estado a envío observado
+        $postulant->update(['estado_postulante_id' => Constants::ESTADO_ENVIO_OBSERVADO]);
+
+        return $postulant->fresh();
     }
 
     private function attachFile(Postulant $postulant, $uploadedFile, string $type, string $typeEntitie, string $directory, string $customName): void

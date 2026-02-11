@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Http\Traits\Auditable;
 use App\Http\Traits\FlexibleQueries;
+use App\Http\Utils\Constants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Postulant extends Model
 {
@@ -81,6 +83,26 @@ class Postulant extends Model
             'allowed' => ['nombres', 'ap_paterno', 'ap_materno', 'fecha_nacimiento', 'num_documento', 'correo', 'codigo', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public static function getImagePathByDni(Postulant $postulante)
+    {
+        $urlPhotoValid = Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_FOTO_CARNET . $postulante->num_documento . '.jpeg';
+
+        if (Storage::disk(Constants::DISK_STORAGE)->exists($urlPhotoValid)) {
+            $dniPath = Storage::url($urlPhotoValid);
+
+            if (in_array($postulante->estado_postulante_id, Constants::ESTADOS_VALIDOS_POSTULANTE_ADMISION)) {
+                return $dniPath;
+            }
+        }
+
+        return $dniPath;
+    }
+
+    public static function bulkUpdateStatus($ids, $status)
+    {
+        return self::whereIn('id', $ids)->update(['estado_postulante_id' => $status]);
     }
 
     /**

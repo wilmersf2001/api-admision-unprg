@@ -23,6 +23,9 @@ class School extends Model
         'distrito_id',
     ];
 
+    const TYPE_NATIONAL = "1";
+    const TYPE_PARTICULAR = "2";
+
     protected function getFilterConfig(): array
     {
         return [
