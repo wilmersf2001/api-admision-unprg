@@ -12,6 +12,7 @@ use App\Models\School;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -370,7 +371,7 @@ class PostulantService
     public function validateRectificationToken(string $token): object
     {
         try {
-            $payload = JWT::decode($token, new \Firebase\JWT\Key(config('app.key'), 'HS256'));
+            $payload = JWT::decode($token, new Key(config('app.key'), 'HS256'));
 
             if (!isset($payload->type) || $payload->type !== 'rectification') {
                 throw new Exception('Token de rectificación inválido.');
