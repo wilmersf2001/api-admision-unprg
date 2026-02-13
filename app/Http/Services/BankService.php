@@ -3,7 +3,10 @@
 namespace App\Http\Services;
 
 use App\Http\Utils\Constants;
+use App\Http\Utils\UtilFunction;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Bank;
+use App\Models\Process;
 use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -23,8 +26,25 @@ class BankService
     {
         $query = $this->model->newQuery();
         $query->applyFilters($request);
+        $query->whereIn('cod_concepto', [Bank::CONCEPTO_NACIONAL, Bank::CONCEPTO_PARTICULAR]);
         $query->applySort($request);
         return $query->applyPagination($request);
+    }
+
+    public function getPaymentTotals(Request $request): array
+    {
+        $query = $this->model->newQuery();
+        $query->applyFilters($request);
+
+        $totalNacional = (clone $query)->where('cod_concepto', Bank::CONCEPTO_NACIONAL)->count();
+        $totalParticular = (clone $query)->where('cod_concepto', Bank::CONCEPTO_PARTICULAR)->count();
+        $total = $totalNacional + $totalParticular;
+
+        return [
+            'total_nacional' => $totalNacional,
+            'total_particular' => $totalParticular,
+            'total' => $total,
+        ];
     }
 
     /**
@@ -55,8 +75,8 @@ class BankService
 
         // Validar monto según tipo de colegio
         $montoEsperado = $data['tipo_colegio'] === 'Nacional'
-            ? Constants::MONTO_NACIONAL
-            : Constants::MONTO_PARTICULAR;
+            ? Bank::MONTO_NACIONAL
+            : Bank::MONTO_PARTICULAR;
 
         if ((float)$record->importe !== $montoEsperado) {
             throw new Exception('El monto del pago no coincide para colegio ' . $data['tipo_colegio']);
@@ -158,5 +178,80 @@ class BankService
             'postulant_id' => $postulantId,
             'used_at' => now(),
         ]);
+    }
+
+    public function paymentReport(Request $request)
+    {
+        $dateFrom = $request->date_from;
+        $dateTo = $request->date_to;
+
+        $resultadoPagosByMonto = Bank::selectRaw('fecha, importe, COUNT(*) as cantidad_pagos')
+            ->whereBetween('fecha', [$dateFrom, $dateTo])
+            ->groupBy('fecha', 'importe')
+            ->orderBy('fecha', 'desc')
+            ->orderBy('importe', 'desc')
+            ->get();
+
+        $data = [];
+        $importes = [];
+        $cantidadImportes = [];
+        $procesoAdmision = Process::getProcessNumber();
+
+        foreach ($resultadoPagosByMonto as $pago) {
+            $fecha = $pago->fecha->format('Y-m-d');
+            $importe = $pago->importe;
+            $cantidad_pagos = $pago->cantidad_pagos;
+
+            if (!isset($data[$fecha])) {
+                $data[$fecha] = [];
+            }
+            $data[$fecha][$importe] = $cantidad_pagos;
+
+            if (!in_array($importe, $importes)) {
+                $importes[] = $importe;
+            }
+        }
+
+        foreach ($data as $fecha => $importesData) {
+            $subTotal = 0;
+            foreach ($importes as $importe) {
+                if (isset($importesData[$importe])) {
+                    $subTotal += intval($importe) * $importesData[$importe];
+                }
+            }
+            $data[$fecha]['subTotal'] = $subTotal;
+        }
+
+        foreach ($importes as $importe) {
+            $cantidadImportes[$importe] = 0;
+            foreach ($data as $fecha => $importesData) {
+                if (isset($importesData[$importe])) {
+                    $cantidadImportes[$importe] += $importesData[$importe];
+                }
+            }
+        }
+
+        sort($importes);
+
+        $totalPagos = 0;
+        foreach ($importes as $importe) {
+            $totalPagos += intval($importe) * $cantidadImportes[$importe];
+        }
+
+        $data = [
+            'fechaDesde' => $dateFrom,
+            'fechaHasta' => $dateTo,
+            'importes' => $importes,
+            'cantidadImportes' => $cantidadImportes,
+            'totalImportes' => array_sum($cantidadImportes),
+            'totalPagos' => $totalPagos,
+            'data' => $data,
+            'today' => UtilFunction::getDateToday(),
+            'procesoAdmision' => $procesoAdmision,
+            'base64ImageLogoUnprg' => "data:image/png;base64," . base64_encode(file_get_contents(public_path('images/logo_color.png')))
+        ];
+
+
+        return PDF::loadView('reports.pdf-pagos', $data)->stream();
     }
 }

@@ -200,6 +200,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Bank
     Route::prefix('banks')->group(function () {
         Route::get('/', [BankController::class, 'index']);
+        Route::get('/payment-report', [BankController::class, 'paymentReport']);
     });
 
     // Route Countries

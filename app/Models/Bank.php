@@ -38,6 +38,11 @@ class Bank extends Model
         'used_at' => 'datetime',
     ];
 
+    public const MONTO_NACIONAL = 280.00;
+    public const MONTO_PARTICULAR = 380.00;
+    public const CONCEPTO_NACIONAL = '00346';
+    public const CONCEPTO_PARTICULAR = '00345';
+
     protected function getFilterConfig(): array
     {
         return [

@@ -25,6 +25,7 @@ class BankController extends Controller
     public function index(Request $request)
     {
         $data = $this->service->getFiltered($request);
+        $totals = $this->service->getPaymentTotals($request);
 
         if (method_exists($data, 'getCollection')) {
             $data->setCollection($data->getCollection()->map(fn($item) => new BankResource($item)));
@@ -34,7 +35,8 @@ class BankController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data' => $data,
+            'totals' => $totals,
         ]);
     }
 
@@ -73,5 +75,29 @@ class BankController extends Controller
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    public function paymentReport(Request $request)
+    {
+            $rules = [
+                'date_from' => 'required|date',
+                'date_to' => 'required|date|after_or_equal:date_from',
+            ];
+
+            $validator = validator($request->all(), $rules, [
+                'required' => 'El campo :attribute es obligatorio.',
+                'date' => 'El campo :attribute debe ser una fecha válida.',
+                'after_or_equal' => 'La fecha hasta debe ser igual o posterior a la fecha desde.',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors()->first());
+            }
+
+            try {
+                return $this->service->paymentReport($request);
+            } catch (Exception $e) {
+                return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            }
     }
 }

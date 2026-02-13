@@ -108,11 +108,11 @@
                     </tr>
                 @endforeach
                 <tr>
-                    <td style="background-color: #7474742c;color: #000"><strong>TOTAL</strong></td>
+                    <td style="background-color: rgb(230, 230, 230); color: #000"><strong>TOTAL</strong></td>
                     @foreach ($cantidadImportes as $importe)
-                        <td style="background-color: #7474742c;color: #000"><strong>{{ $importe }}</strong></td>
+                        <td style="background-color: rgb(230, 230, 230); color: #000"><strong>{{ $importe }}</strong></td>
                     @endforeach
-                    <td style="background-color: #7474742c;color: #000"><strong>S/. {{ $totalPagos }}</strong></td>
+                    <td style="background-color: rgb(230, 230, 230); color: #000"><strong>S/. {{ $totalPagos }}</strong></td>
                 </tr>
             </tbody>
         </table>
