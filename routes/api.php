@@ -42,6 +42,7 @@ Route::get('departments', [DepartmentController::class, 'index']);
 Route::get('provinces', [ProvinceController::class, 'index']);
 Route::get('districts', [DistrictController::class, 'index']);
 Route::get('schools', [SchoolController::class, 'index']);
+Route::get('processes/recent-process', [ProcessController::class, 'recentProcess']);
 Route::post('banks/verify-payment', [BankController::class, 'VerifyPayment']);
 
 // Ruta pública para registro de postulantes (requiere token de inscripción)

@@ -27,9 +27,13 @@ class ProcessService
     public function create(array $data)
     {
         try {
+            if (Process::existActiveProcess())
+            {
+                throw new Exception('Ya existe un proceso activo. No se puede crear otro proceso hasta que el actual sea desactivado.');
+            }
             return $this->model->create($data);
         }catch (\Throwable $th){
-            throw new Exception('Error al crear '. $this->nameModel. ' :' . $th->getMessage());
+            throw new Exception($th->getMessage());
         }
     }
 
@@ -40,10 +44,16 @@ class ProcessService
             throw new Exception($this->nameModel . ' no encontrado');
         }
         try {
+            if (Process::existActiveProcess())
+            {
+                if (isset($data['estado']) && $data['estado'] == 1 && $record->estado == 0) {
+                    throw new Exception('Ya existe un proceso activo. No se puede activar otro proceso hasta que el actual sea desactivado.');
+                }
+            }
             $record->update($data);
             return $record;
         } catch (\Throwable $th) {
-            throw new Exception('Error al actualizar ' . $this->nameModel . ': ' . $th->getMessage());
+            throw new Exception($th->getMessage());
         }
     }
 

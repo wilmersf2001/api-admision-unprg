@@ -35,6 +35,11 @@ class Process extends Model
         return $process ? date('Y', strtotime($process->fecha_inicio)) . ' - ' . $process->numero : null;
     }
 
+    public static function existActiveProcess(): bool
+    {
+        return self::where('estado', 1)->exists();
+    }
+
     public function setNumeroAttribute($value)
     {
         $this->attributes['numero'] = strtoupper($value);

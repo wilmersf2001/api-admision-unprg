@@ -41,6 +41,16 @@ class ProcessController extends Controller
         ]);
     }
 
+    public function recentProcess()
+    {
+        try {
+            $process = Process::orderBy('fecha_inicio', 'desc')->first();
+            return $this->successResponse($process, "Número de proceso actual obtenido exitosamente");
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al obtener el número de proceso actual', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function store(StoreProcessRequest $request)
     {
         try {
@@ -48,7 +58,7 @@ class ProcessController extends Controller
             $createdModel = $this->service->create($data);
             return $this->successResponse(new ProcessResource($createdModel), $this->nameModel . " creado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,7 +78,7 @@ class ProcessController extends Controller
             $updatedModel = $this->service->update($process->id, $data);
             return $this->successResponse(new ProcessResource($updatedModel), $this->nameModel . " actualizado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
