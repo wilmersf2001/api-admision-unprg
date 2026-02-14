@@ -56,4 +56,19 @@ class DistributionVacancies extends Model
             'default' => 'id'
         ];
     }
+
+    public function academicProgram()
+    {
+        return $this->belongsTo(AcademicProgram::class, 'programa_academico_id');
+    }
+
+    public function modality()
+    {
+        return $this->belongsTo(Modality::class, 'modalidad_id');
+    }
+
+    public function sede()
+    {
+        return $this->belongsTo(Sede::class, 'sede_id');
+    }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DistributionVacanciesController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FacultyController;
@@ -210,4 +211,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Route Send Email
     Route::post("/send-email-postulants", [SendMailController::class, "sendMail"]);
+
+    // Route Distribution Vacancies
+    Route::prefix('distribution-vacancies')->group(function () {
+        Route::get('/', [DistributionVacanciesController::class, 'index']);
+        Route::post('/', [DistributionVacanciesController::class, 'store']);
+        Route::post('/upsert', [DistributionVacanciesController::class, 'upsert']);
+        Route::get('/{distributionVacancies}', [DistributionVacanciesController::class, 'show']);
+        Route::put('/{distributionVacancies}', [DistributionVacanciesController::class, 'update']);
+        Route::delete('/{distributionVacancies}', [DistributionVacanciesController::class, 'destroy']);
+    });
 });
