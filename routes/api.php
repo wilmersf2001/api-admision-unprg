@@ -23,6 +23,7 @@ use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\TxtFileController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ViewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -221,5 +222,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{distributionVacancies}', [DistributionVacanciesController::class, 'show']);
         Route::put('/{distributionVacancies}', [DistributionVacanciesController::class, 'update']);
         Route::delete('/{distributionVacancies}', [DistributionVacanciesController::class, 'destroy']);
+    });
+
+    // Route Views (Módulos - Estructura de Árbol)
+    Route::prefix('views')->group(function () {
+        Route::get('/', [ViewController::class, 'index']); // Obtener árbol completo
+        Route::get('/tree', [ViewController::class, 'getTree']); // Obtener lista plana
+        Route::post('/', [ViewController::class, 'store']);
+        Route::get('/{view}', [ViewController::class, 'show']);
+        Route::put('/{view}', [ViewController::class, 'update']);
+        Route::delete('/{view}', [ViewController::class, 'destroy']);
     });
 });
