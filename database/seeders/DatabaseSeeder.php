@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,12 +16,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Crear el rol administrador
+        $adminRole = Role::updateOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'ADMINISTRADOR',
+                'description' => 'ROL CON ACCESO TOTAL AL SISTEMA',
+                'is_active' => true,
+            ]
+        );
 
+        // Crear el usuario administrador con el rol
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Administrador',
+            'email' => 'admin@unprg.edu.pe',
             'password' => bcrypt('password'),
+            'role_id' => $adminRole->id,
         ]);
+
+        $this->call([
+            ViewsTableSeeder::class,
+        ]);
+
+        $this->command->info('Admin role and user created successfully!');
     }
 }
