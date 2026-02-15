@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoleResource extends JsonResource
+class PermissionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,12 +16,15 @@ class RoleResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'view_id' => $this->view_id,
+            'code' => $this->code,
             'name' => $this->name,
             'description' => $this->description,
+            'module' => $this->module,
+            'policy_method' => $this->policy_method,
             'is_active' => $this->is_active,
-            'created_by' => $this->created_by,
-            'created_by_name' => $this->createdBy ? $this->createdBy->name : null,
-            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+             // Incluye la vista relacionada si está cargada
+            'view' => new ViewResource($this->whenLoaded('view')),
         ];
     }
 }

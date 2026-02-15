@@ -22,4 +22,34 @@ class Permission extends Model
         'policy_method',
         'is_active',
     ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    protected static function getFilterConfig(): array
+    {
+        return [
+            'search' => [
+                'type' => 'global_search',
+                'columns' => ['code', 'name', 'description', 'module'],
+            ],
+            'is_active' => [
+                'type' => 'boolean',
+            ],
+        ];
+    }
+
+    protected function getSortConfig(): array
+    {
+        return [
+            'allow' => ['code', 'name', 'module', 'created_at'],
+            'default' => ['name' => 'asc'],
+        ];
+    }
+
+    public function view()
+    {
+        return $this->belongsTo(View::class);
+    }
 }

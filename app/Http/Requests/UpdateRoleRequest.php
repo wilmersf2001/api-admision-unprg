@@ -11,7 +11,7 @@ class UpdateRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,21 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'sometimes|string|max:255|unique:roles,name,' . $this->route('id'),
+            'description' => 'sometimes|nullable|string|max:255',
+            'is_active' => 'sometimes|nullable|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.string' => 'El nombre debe ser una cadena de texto.',
+            'name.max' => 'El nombre no debe exceder los 255 caracteres.',
+            'name.unique' => 'El nombre ya está en uso.',
+            'description.string' => 'La descripción debe ser una cadena de texto.',
+            'description.max' => 'La descripción no debe exceder los 255 caracteres.',
+            'is_active.boolean' => 'El campo is_active debe ser un valor booleano (true o false).',
         ];
     }
 }

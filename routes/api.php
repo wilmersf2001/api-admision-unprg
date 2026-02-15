@@ -13,10 +13,12 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ModalityController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PostulantController;
 use App\Http\Controllers\PostulantStateController;
 use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\SendMailController;
@@ -232,5 +234,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{view}', [ViewController::class, 'show']);
         Route::put('/{view}', [ViewController::class, 'update']);
         Route::delete('/{view}', [ViewController::class, 'destroy']);
+    });
+
+    // Route Roles
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index']);
+        Route::post('/', [RoleController::class, 'store']);
+        Route::get('/{role}', [RoleController::class, 'show']);
+        Route::put('/{role}', [RoleController::class, 'update']);
+        Route::delete('/{role}', [RoleController::class, 'destroy']);
+    });
+
+    // Route Permissions
+    Route::prefix('permissions')->group(function () {
+        Route::get('/', [PermissionController::class, 'index']);
+        Route::post('/bulkSync', [PermissionController::class, 'bulkSync']);
+        Route::post('/save-to-role', [PermissionController::class, 'saveToRole']);
+        Route::get('/{permission}', [PermissionController::class, 'show']);
+        Route::delete('/remove-from-role', [PermissionController::class, 'removeFromRole']);
     });
 });

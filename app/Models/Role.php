@@ -57,9 +57,18 @@ class Role extends Model
      /**
      * Relación con RolePermission
      */
-    public function permissions()
+    public function rolePermission()
     {
         return $this->hasMany(RolePermission::class);
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'role_permissions')
+            ->wherePivotNull('deleted_at')
+            ->whereNull('permissions.deleted_at')
+            ->withPivot('granted')
+            ->withTimestamps();
     }
 
         /**

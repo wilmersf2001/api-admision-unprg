@@ -54,97 +54,11 @@ return [
       'policy_method' => 'import',
     ],
 
-    'authorize' => [
-      'label' => 'Autorizar',
-      'description' => 'Permite autorizar solicitudes o acciones',
-      'icon' => 'CheckCircle',
-      'policy_method' => 'authorize',
-    ],
-
-    'approve' => [
-      'label' => 'Aprobar',
-      'description' => 'Permite aprobar documentos o procesos',
-      'icon' => 'ThumbsUp',
-      'policy_method' => 'approve',
-    ],
-
-    'reject' => [
-      'label' => 'Rechazar',
-      'description' => 'Permite rechazar solicitudes',
-      'icon' => 'ThumbsDown',
-      'policy_method' => 'reject',
-    ],
-
-    'annul' => [
-      'label' => 'Anular',
-      'description' => 'Permite anular registros o documentos',
-      'icon' => 'XCircle',
-      'policy_method' => 'annul',
-    ],
-
-    'print' => [
-      'label' => 'Imprimir',
-      'description' => 'Permite imprimir documentos',
-      'icon' => 'Printer',
-      'policy_method' => 'print',
-    ],
-
     'send' => [
       'label' => 'Enviar',
       'description' => 'Permite enviar información',
       'icon' => 'Send',
       'policy_method' => 'send',
-    ],
-
-    'duplicate' => [
-      'label' => 'Duplicar',
-      'description' => 'Permite duplicar registros',
-      'icon' => 'Copy',
-      'policy_method' => 'duplicate',
-    ],
-
-    'viewAdvisors' => [
-      'label' => 'Ver Asesores',
-      'description' => 'Permite visualizar la lista de asesores',
-      'icon' => 'Users',
-      'policy_method' => 'viewAdvisors',
-    ],
-
-    'viewBranches' => [
-      'label' => 'Ver por Sedes',
-      'description' => 'Permite visualizar la lista por sedes',
-      'icon' => 'Building',
-      'policy_method' => 'viewBranches',
-    ],
-    'assign' => [
-      'label' => 'Asignar',
-      'description' => 'Permite asignar registros o tareas',
-      'icon' => 'UserCheck',
-      'policy_method' => 'assign',
-    ],
-    'bill' => [
-      'label' => 'Facturar',
-      'description' => 'Permite facturar cotizaciones o servicios',
-      'icon' => 'DollarSign',
-      'policy_method' => 'bill',
-    ],
-    'otOptions' => [
-      'label' => 'Opciones OT',
-      'description' => 'Permite acceder a opciones de órdenes de trabajo',
-      'icon' => 'Settings',
-      'policy_method' => 'otOptions',
-    ],
-    'manage' => [
-      'label' => 'Gestionar',
-      'description' => 'Permite gestionar configuraciones avanzadas',
-      'icon' => 'Settings',
-      'policy_method' => 'manage',
-    ],
-    'receive' => [
-      'label' => 'Recepcionar',
-      'description' => 'Permite recepcionar en el sistema vehículos o activos',
-      'icon' => 'Truck',
-      'policy_method' => 'receive',
     ],
   ],
 

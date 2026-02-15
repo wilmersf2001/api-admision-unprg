@@ -16,4 +16,24 @@ class RolePermission extends Model
         'permission_id',
         'granted',
     ];
+
+    protected $casts = [
+        'granted' => 'boolean',
+    ];
+
+    /**
+     * Relación con el rol
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    /**
+     * Relación con el permiso
+     */
+    public function permission()
+    {
+        return $this->belongsTo(Permission::class, 'permission_id');
+    }
 }

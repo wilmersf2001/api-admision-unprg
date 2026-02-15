@@ -108,4 +108,12 @@ class View extends Model
     {
         return $this->children()->exists();
     }
+
+    /**
+     * Relación con permisos
+     */
+    public function permissions(): HasMany
+    {
+        return $this->hasMany(Permission::class);
+    }
 }

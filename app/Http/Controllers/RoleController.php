@@ -65,7 +65,7 @@ class RoleController extends Controller
     public function show(Role $role)
     {
         try {
-            return $this->successResponse(new RoleResource($role), $this->nameModel . " obtenido exitosamente");
+            return $this->successResponse(new RoleResource($role->load('permissions')), $this->nameModel . " obtenido exitosamente");
         } catch (Exception $exception) {
             return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
         }

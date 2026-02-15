@@ -45,8 +45,20 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user()->load([
+            'role.rolePermission' => function ($query) {
+                $query->where('granted', true)
+                    ->with(['permission.view' => function ($q) {
+                        $q->where('is_active', true);
+                    }])
+                    ->whereHas('permission', function ($q) {
+                        $q->where('is_active', true);
+                    });
+            }
+        ]);
+
         return $this->successResponse(
-            new UserResource($request->user()),
+            new UserResource($user),
             'Usuario autenticado'
         );
     }
