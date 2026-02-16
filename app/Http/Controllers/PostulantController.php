@@ -269,4 +269,52 @@ class PostulantController extends Controller
             return $this->errorResponse($e->getMessage(), $statusCode);
         }
     }
+
+    /**
+     * Exporta postulantes a Excel con filtros opcionales.
+     */
+    public function export(Request $request)
+    {
+        try {
+            $query = Postulant::query();
+
+            if ($request->has('modalidad_id')) {
+                $query->where('modalidad_id', $request->modalidad_id);
+            }
+
+            if ($request->has('programa_academico_id')) {
+                $query->where('programa_academico_id', $request->programa_academico_id);
+            }
+
+            if ($request->has('estado_postulante_id')) {
+                $query->where('estado_postulante_id', $request->estado_postulante_id);
+            }
+
+            if ($request->has('sede_id')) {
+                $query->where('sede_id', $request->sede_id);
+            }
+
+            if ($request->has('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('nombres', 'like', "%{$search}%")
+                        ->orWhere('ap_paterno', 'like', "%{$search}%")
+                        ->orWhere('ap_materno', 'like', "%{$search}%")
+                        ->orWhere('num_documento', 'like', "%{$search}%")
+                        ->orWhere('codigo', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->has('ingreso')) {
+                $query->where('ingreso', $request->boolean('ingreso'));
+            }
+
+            $filename = 'postulantes_' . now()->format('Y-m-d_His') . '.xlsx';
+
+            return Postulant::export($filename, $query);
+
+        } catch (Exception $e) {
+            return $this->errorResponse('Error al exportar postulantes: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

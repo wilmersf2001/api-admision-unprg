@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Traits\Auditable;
+use App\Http\Traits\Exportable;
 use App\Http\Traits\FlexibleQueries;
 use App\Http\Utils\Constants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 class Postulant extends Model
 {
     /** @use HasFactory<\Database\Factories\PostulantFactory> */
-    use HasFactory, Auditable, FlexibleQueries, softDeletes;
+    use HasFactory, Auditable, FlexibleQueries, softDeletes, Exportable;
 
     protected $table = 'tb_postulante';
 
@@ -172,5 +173,73 @@ class Postulant extends Model
     {
         return $this->hasMany(File::class, 'entity_id')
             ->where('entity_type', self::class);
+    }
+
+    /**
+     * Configuración de columnas para exportación.
+     */
+    protected function getExportColumns(): array
+    {
+        return [
+            'codigo' => 'Código',
+            'nombres' => 'Nombres',
+            'ap_paterno' => 'Apellido Paterno',
+            'ap_materno' => 'Apellido Materno',
+            'num_documento' => 'DNI',
+            'tipo_documento' => [
+                'label' => 'Tipo Documento',
+                'format' => fn($value) => $value == self::DOCUMENT_TYPE_DNI ? 'DNI' : 'CE'
+            ],
+            'fecha_nacimiento' => [
+                'label' => 'Fecha de Nacimiento',
+                'format' => fn($value) => $value ? \Carbon\Carbon::parse($value)->format('d/m/Y') : ''
+            ],
+            'gender.nombre' => 'Sexo',
+            'districtBirth.nombre' => 'Distrito de Nacimiento',
+            'districtResidence.nombre' => 'Distrito de Residencia',
+            'direccion' => 'Dirección',
+            'addressType.nombre' => 'Tipo de Dirección',
+            'correo' => 'Correo',
+            'telefono' => 'Teléfono',
+            'academicProgram.nombre' => 'Programa Académico',
+            'modality.nombre' => 'Modalidad',
+            'sede.nombre' => 'Sede',
+            'school.nombre' => 'Colegio',
+            'postulantState.nombre' => 'Estado',
+            'fecha_inscripcion' => [
+                'label' => 'Fecha de Inscripción',
+                'format' => fn($value) => $value ? \Carbon\Carbon::parse($value)->format('d/m/Y H:i') : ''
+            ],
+            'created_at' => [
+                'label' => 'Fecha de Registro',
+                'format' => fn($value) => $value->format('d/m/Y H:i')
+            ],
+        ];
+    }
+
+    /**
+     * Título de la hoja de exportación.
+     */
+    protected function getExportTitle(): string
+    {
+        return 'Postulantes';
+    }
+
+    /**
+     * Query personalizado para exportación con relaciones optimizadas.
+     */
+    protected function getExportQuery()
+    {
+        return static::with([
+            'gender',
+            'districtBirth',
+            'districtResidence',
+            'addressType',
+            'academicProgram',
+            'modality',
+            'sede',
+            'school',
+            'postulantState',
+        ]);
     }
 }
