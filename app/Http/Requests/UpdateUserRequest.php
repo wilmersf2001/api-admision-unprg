@@ -24,6 +24,8 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $this->route('user')->id,
+            'role_id' => 'sometimes|required|integer|exists:roles,id',
+            'status' => 'sometimes|required|boolean',
         ];
     }
 
@@ -39,6 +41,12 @@ class UpdateUserRequest extends FormRequest
             'email.email' => 'El correo electrónico debe ser una dirección válida.',
             'email.max' => 'El correo electrónico no debe exceder los 255 caracteres.',
             'email.unique' => 'El correo electrónico ya está en uso.',
+
+            'role_id.required' => 'El rol es obligatorio.',
+            'role_id.integer' => 'El rol debe ser un número entero.',
+            'role_id.exists' => 'El rol seleccionado no existe.',
+
+            'status.required' => 'El estado es obligatorio.',
         ];
     }
 }

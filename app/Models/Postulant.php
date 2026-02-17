@@ -194,18 +194,18 @@ class Postulant extends Model
                 'label' => 'Fecha de Nacimiento',
                 'format' => fn($value) => $value ? \Carbon\Carbon::parse($value)->format('d/m/Y') : ''
             ],
-            'gender.nombre' => 'Sexo',
+            'gender.descripcion' => 'Sexo',
             'districtBirth.nombre' => 'Distrito de Nacimiento',
             'districtResidence.nombre' => 'Distrito de Residencia',
             'direccion' => 'Dirección',
-            'addressType.nombre' => 'Tipo de Dirección',
+            'addressType.descripcion' => 'Tipo de Dirección',
             'correo' => 'Correo',
             'telefono' => 'Teléfono',
             'academicProgram.nombre' => 'Programa Académico',
-            'modality.nombre' => 'Modalidad',
+            'modality.descripcion' => 'Modalidad',
             'sede.nombre' => 'Sede',
             'school.nombre' => 'Colegio',
-            'postulantState.nombre' => 'Estado',
+            'postulantState.descripcion' => 'Estado',
             'fecha_inscripcion' => [
                 'label' => 'Fecha de Inscripción',
                 'format' => fn($value) => $value ? \Carbon\Carbon::parse($value)->format('d/m/Y H:i') : ''

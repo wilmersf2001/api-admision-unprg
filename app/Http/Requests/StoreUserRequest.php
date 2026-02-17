@@ -25,6 +25,7 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role_id' => 'required|integer|exists:roles,id',
         ];
     }
 
@@ -45,6 +46,10 @@ class StoreUserRequest extends FormRequest
             'password.string' => 'La contraseña debe ser una cadena de texto.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+
+            'role_id.required' => 'El rol es obligatorio.',
+            'role_id.integer' => 'El rol debe ser un número entero.',
+            'role_id.exists' => 'El rol seleccionado no existe.',
         ];
     }
 }

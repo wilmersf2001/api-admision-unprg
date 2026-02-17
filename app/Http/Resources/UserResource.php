@@ -11,6 +11,7 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'role_id' => $this->role_id,
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->when($this->relationLoaded('role'), function () {
@@ -23,6 +24,7 @@ class UserResource extends JsonResource
             'views' => $this->when($this->relationLoaded('role'), function () {
                 return $this->getViewsWithPermissions();
             }),
+            'status' => $this->status,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

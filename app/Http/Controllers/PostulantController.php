@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterPostulantRequest;
 use App\Http\Requests\StorePostulantRequest;
 use App\Http\Requests\UpdatePostulantRequest;
 use App\Http\Resources\PostulantResource;

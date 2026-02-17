@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Traits\Auditable;
+use App\Http\Traits\Exportable;
 use App\Http\Traits\FlexibleQueries;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Bank extends Model
 {
     /** @use HasFactory<\Database\Factories\BankFactory> */
-    use HasFactory, Auditable, FlexibleQueries, softDeletes;
+    use HasFactory, Auditable, FlexibleQueries, softDeletes, Exportable;
 
     protected $table = 'tb_banco';
 
@@ -84,5 +85,42 @@ class Bank extends Model
     public function isUsed(): bool
     {
         return $this->postulant_id !== null;
+    }
+
+    /**
+     * Configuración de columnas para exportación.
+     */
+
+    public function getExportColumns(): array
+    {
+        return [
+            'num_oficina' => 'Número de Oficina',
+            'cod_concepto' => 'Código de Concepto',
+            'tipo_doc_pago' => 'Tipo de Documento de Pago',
+            'num_documento' => 'Número de Documento',
+            'importe' => 'Importe',
+            'fecha' => 'Fecha',
+            'hora' => 'Hora',
+            'num_doc_depo' => 'Número de Documento de Depósito',
+            'tipo_doc_depo' => 'Tipo de Documento de Depósito',
+            'observacion_depo' => 'Observación del Depósito',
+        ];
+    }
+
+    /**
+     * Título de la hoja de exportación.
+     */
+    public function getExportTitle(): string
+    {
+        return 'Pagos Bancarios';
+    }
+
+    /**
+     * Query personalizado para exportación con relaciones optimizadas.
+     */
+
+    public function getExportQuery()
+    {
+        return $this->newQuery()->with(['txtFile', 'postulant']);
     }
 }

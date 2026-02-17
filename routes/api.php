@@ -206,6 +206,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route Bank
     Route::prefix('banks')->group(function () {
         Route::get('/', [BankController::class, 'index']);
+        Route::get('/export', [BankController::class, 'export']);
         Route::get('/payment-report', [BankController::class, 'paymentReport']);
     });
 

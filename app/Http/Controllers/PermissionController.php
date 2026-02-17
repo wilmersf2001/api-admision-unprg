@@ -89,6 +89,14 @@ class PermissionController extends Controller
                 'permission_id' => 'required|exists:permissions,id',
             ]);
 
+            // Validar que no se puedan quitar permisos al rol admin (id = 1)
+            if ($request->role_id == 1) {
+                return $this->errorResponse(
+                    'No se pueden quitar permisos al rol Admin. Solo se pueden agregar.',
+                    Response::HTTP_FORBIDDEN
+                );
+            }
+
             $this->service->removePermissionFromRole(
                 $request->role_id,
                 $request->permission_id

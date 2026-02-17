@@ -6,6 +6,7 @@ use App\Http\Resources\BankResource;
 use App\Http\Services\BankService;
 use App\Http\Traits\ApiResponse;
 use App\Http\Traits\HandlesValidation;
+use App\Models\Bank;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -99,5 +100,36 @@ class BankController extends Controller
             } catch (Exception $e) {
                 return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
             }
+    }
+
+    /**
+     * Exporta el reporte de pagos a Excel con filtros opcionales
+     */
+    public function export(Request $request)
+    {
+        try {
+            $query = Bank::query();
+
+            // Aplicar filtros si se proporcionan
+            if ($request->has('fecha_start') && $request->has('fecha_end')) {
+                $query->whereBetween('fecha', [$request->input('fecha_start'), $request->input('fecha_end')]);
+            }
+
+            if ($request->has('search')) {
+                $search = $request->input('search');
+                $query->where(function($q) use ($search) {
+                    $q->where('num_doc_depo', 'like', "%$search%")
+                      ->orWhere('num_documento', 'like', "%$search%")
+                      ->orWhere('num_oficina', 'like', "%$search%");
+                });
+            }
+
+            $filename = 'reporte_pagos_' . now()->format('Ymd_His') . '.xlsx';
+
+            return Bank::export($filename, $query);
+
+        } catch (Exception $e) {
+            return $this->errorResponse('Error al exportar postulantes: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
