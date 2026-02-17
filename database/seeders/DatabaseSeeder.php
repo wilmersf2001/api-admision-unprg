@@ -36,6 +36,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ViewsTableSeeder::class,
+            PermissionsTableSeeder::class,
+            RolePermissionsTableSeeder::class,
         ]);
 
         $this->command->info('Admin role and user created successfully!');
