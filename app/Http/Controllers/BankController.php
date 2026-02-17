@@ -129,7 +129,7 @@ class BankController extends Controller
             return Bank::export($filename, $query);
 
         } catch (Exception $e) {
-            return $this->errorResponse('Error al exportar postulantes: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

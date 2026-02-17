@@ -48,7 +48,7 @@ class ExamController extends Controller
             $createdModel = $this->service->create($data);
             return $this->successResponse(new ExamResource($createdModel), $this->nameModel . " creado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -57,7 +57,7 @@ class ExamController extends Controller
         try {
             return $this->successResponse(new ExamResource($exam), $this->nameModel . " obtenido exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,7 +68,7 @@ class ExamController extends Controller
             $updatedModel = $this->service->update($exam->id, $data);
             return $this->successResponse(new ExamResource($updatedModel), $this->nameModel . " actualizado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,7 +78,7 @@ class ExamController extends Controller
             $this->service->delete($exam->id);
             return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -96,7 +96,7 @@ class PostulantController extends Controller
         try {
             return $this->successResponse(new PostulantResource($Postulant), $this->nameModel . " obtenido exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -107,7 +107,7 @@ class PostulantController extends Controller
             $updatedModel = $this->service->update($Postulant->id, $data);
             return $this->successResponse(new PostulantResource($updatedModel), $this->nameModel . " actualizado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -191,8 +191,8 @@ class PostulantController extends Controller
     {
         try {
             return $this->service->getFilePDF($postulant->id);
-        } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -220,8 +220,8 @@ class PostulantController extends Controller
                 'expires_at' => $result['expires_at'],
             ], 'Postulante encontrado exitosamente');
 
-        } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -258,14 +258,14 @@ class PostulantController extends Controller
                 'Archivos rectificados exitosamente'
             );
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $statusCode = Response::HTTP_BAD_REQUEST;
 
-            if (str_contains($e->getMessage(), 'expirado') || str_contains($e->getMessage(), 'Token') || str_contains($e->getMessage(), 'inválido')) {
+            if (str_contains($exception->getMessage(), 'expirado') || str_contains($exception->getMessage(), 'Token') || str_contains($exception->getMessage(), 'inválido')) {
                 $statusCode = Response::HTTP_UNAUTHORIZED;
             }
 
-            return $this->errorResponse($e->getMessage(), $statusCode);
+            return $this->errorResponse($exception->getMessage(), $statusCode);
         }
     }
 
@@ -312,8 +312,8 @@ class PostulantController extends Controller
 
             return Postulant::export($filename, $query);
 
-        } catch (Exception $e) {
-            return $this->errorResponse('Error al exportar postulantes: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (Exception $exception) {
+            return $this->errorResponse('Error al exportar postulantes: ' . $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

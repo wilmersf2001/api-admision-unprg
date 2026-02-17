@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Http\Traits\Auditable;
 use App\Http\Traits\FlexibleQueries;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -13,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, Auditable, FlexibleQueries;
+    use HasApiTokens, HasFactory, Notifiable, Auditable, FlexibleQueries, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -59,6 +60,7 @@ class User extends Authenticatable
                 'type' => 'global_search',
                 'columns' => ['name', 'email'],
             ],
+            'status' => ['type' => 'exact', 'column' => 'status'],
         ];
     }
 
@@ -68,6 +70,18 @@ class User extends Authenticatable
             'allowed' => ['id', 'name', 'email', 'created_at'],
             'default' => 'id',
         ];
+    }
+
+    const USER_ADMIN_ID = 1;
+
+    public function setNameAttribute(string $name): void
+    {
+        $this->attributes['name'] = strtoupper($name);
+    }
+
+    public function setEmailAttribute(string $email): void
+    {
+        $this->attributes['email'] = strtolower($email);
     }
 
     public function role()

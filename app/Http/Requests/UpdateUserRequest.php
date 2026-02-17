@@ -25,6 +25,7 @@ class UpdateUserRequest extends FormRequest
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $this->route('user')->id,
             'role_id' => 'sometimes|required|integer|exists:roles,id',
+            'password' => 'sometimes|required|string|min:8|confirmed',
             'status' => 'sometimes|required|boolean',
         ];
     }
@@ -45,6 +46,10 @@ class UpdateUserRequest extends FormRequest
             'role_id.required' => 'El rol es obligatorio.',
             'role_id.integer' => 'El rol debe ser un número entero.',
             'role_id.exists' => 'El rol seleccionado no existe.',
+
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.string' => 'La contraseña debe ser una cadena de texto.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
 
             'status.required' => 'El estado es obligatorio.',
         ];

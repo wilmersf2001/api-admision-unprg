@@ -48,7 +48,7 @@ class AddressTypeController extends Controller
             $createdModel = $this->service->create($data);
             return $this->successResponse(new AddressTypeResource($createdModel), $this->nameModel . " creado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -57,7 +57,7 @@ class AddressTypeController extends Controller
         try {
             return $this->successResponse(new AddressTypeResource($addressType), $this->nameModel . " obtenido exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,7 +68,7 @@ class AddressTypeController extends Controller
             $updatedModel = $this->service->update($addressType->id, $data);
             return $this->successResponse(new AddressTypeResource($updatedModel), $this->nameModel . " actualizado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,7 +78,7 @@ class AddressTypeController extends Controller
             $this->service->delete($addressType->id);
             return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

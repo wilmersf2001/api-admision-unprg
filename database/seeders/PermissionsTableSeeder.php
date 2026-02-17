@@ -19,7 +19,7 @@ class PermissionsTableSeeder extends Seeder
             1  => ['name' => 'Dashboard',                 'slug' => 'dashboard'],
             2  => ['name' => 'Procesos',                  'slug' => 'procesos'],
             3  => ['name' => 'Archivos TXT',              'slug' => 'archivos-txt'],
-            4  => ['name' => 'Pagos Bancos',              'slug' => 'pagos-bancos'],
+            4  => ['name' => 'Pagos Bancos',              'slug' => 'pagos-banco'],
             5  => ['name' => 'Postulantes',               'slug' => 'postulantes'],
             6  => ['name' => 'Distribución de Vacantes',  'slug' => 'distribucion-de-vacantes'],
             7  => ['name' => 'Enviar Correos',            'slug' => 'enviar-correos'],

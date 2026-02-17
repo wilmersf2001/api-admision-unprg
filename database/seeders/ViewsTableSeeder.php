@@ -52,9 +52,9 @@ class ViewsTableSeeder extends Seeder
             [
                 'id' => 4,
                 'parent_id' => null,
-                'name' => 'Pagos Bancos',
-                'slug' => 'pagos-bancos',
-                'route' => 'bancos',
+                'name' => 'Pagos Banco',
+                'slug' => 'pagos-banco',
+                'route' => 'pagos-banco',
                 'icon' => 'CreditCard',
                 'description' => 'Pagos de postulantes al banco de la nación',
                 'order' => 4,

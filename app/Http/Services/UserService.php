@@ -40,6 +40,15 @@ class UserService
         if (!$record) {
             throw new Exception($this->nameModel . ' no encontrado');
         }
+        if (isset($data['status']) && !$data['status'] && $record->id === User::USER_ADMIN_ID) {
+            throw new Exception('No se puede desactivar el usuario administrador');
+        }
+
+        if (isset($data['password']) && $record->id === User::USER_ADMIN_ID) {
+            if (!$this->isStrongPassword($data['password'])) {
+                throw new Exception('La contraseña del administrador debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales');
+            }
+        }
         try {
             $record->update($data);
             return $record;
@@ -53,11 +62,23 @@ class UserService
         if (!$record) {
             throw new Exception($this->nameModel . ' no encontrado');
         }
+        if ($record->id === User::USER_ADMIN_ID) {
+            throw new Exception('No se puede eliminar el usuario administrador');
+        }
         try {
             $record->delete();
             return true;
         } catch (\Throwable $th) {
             throw new Exception('Error al eliminar ' . $this->nameModel . ': ' . $th->getMessage());
         }
+    }
+
+    private function isStrongPassword(string $password): bool
+    {
+        return strlen($password) >= 8
+            && preg_match('/[a-z]/', $password)      // Al menos una minúscula
+            && preg_match('/[A-Z]/', $password)      // Al menos una mayúscula
+            && preg_match('/[0-9]/', $password)      // Al menos un número
+            && preg_match('/[@$!%*?&#]/', $password); // Al menos un carácter especial
     }
 }

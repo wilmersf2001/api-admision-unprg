@@ -46,7 +46,7 @@ class TxtFileController extends Controller
             $createdModel = $this->service->create($data);
             return $this->successResponse(new TxtFileResource($createdModel), $this->nameModel . " creado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $exception, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -48,7 +48,7 @@ class DistributionVacanciesController extends Controller
             $createdModel = $this->service->create($data);
             return $this->successResponse(new DistributionVacanciesResource($createdModel), $this->nameModel . " creado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al crear ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -57,7 +57,7 @@ class DistributionVacanciesController extends Controller
         try {
             return $this->successResponse(new DistributionVacanciesResource($distributionVacancies), $this->nameModel . " obtenido exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al obtener ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,7 +68,7 @@ class DistributionVacanciesController extends Controller
             $updatedModel = $this->service->update($distributionVacancies->id, $data);
             return $this->successResponse(new DistributionVacanciesResource($updatedModel), $this->nameModel . " actualizado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al actualizar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -79,7 +79,7 @@ class DistributionVacanciesController extends Controller
             $result = $this->service->upsert($data);
             return $this->successResponse(new DistributionVacanciesResource($result), $this->nameModel . " guardado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al guardar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -89,7 +89,7 @@ class DistributionVacanciesController extends Controller
             $this->service->delete($distributionVacancies->id);
             return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
