@@ -86,14 +86,14 @@ class Postulant extends Model
         ];
     }
 
-    public static function getImagePathByDni(Postulant $postulante)
+    public static function getImagePathByDni(Postulant $postulant): string
     {
-        $urlPhotoValid = Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_FOTO_CARNET . $postulante->num_documento . '.jpeg';
+        $urlPhotoValid = Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_FOTO_CARNET . $postulant->num_documento . '.jpeg';
 
         if (Storage::disk(Constants::DISK_STORAGE)->exists($urlPhotoValid)) {
             $dniPath = Storage::url($urlPhotoValid);
 
-            if (in_array($postulante->estado_postulante_id, Constants::ESTADOS_VALIDOS_POSTULANTE_ADMISION)) {
+            if (in_array($postulant->estado_postulante_id, Constants::ESTADOS_VALIDOS_POSTULANTE_ADMISION)) {
                 return $dniPath;
             }
         }

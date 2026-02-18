@@ -60,6 +60,13 @@ return [
       'icon' => 'Send',
       'policy_method' => 'send',
     ],
+
+    'manage' => [
+      'label' => 'Gestionar',
+      'description' => 'Permite gestionar configuraciones o procesos',
+      'icon' => 'Settings',
+      'policy_method' => 'manage',
+    ],
   ],
 
   /*

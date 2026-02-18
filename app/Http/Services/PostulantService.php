@@ -6,7 +6,9 @@ use App\Http\Utils\Constants;
 use App\Http\Utils\UtilFunction;
 use App\Models\Bank;
 use App\Models\District;
+use App\Models\File;
 use App\Models\Postulant;
+use App\Models\PostulantState;
 use App\Models\Process;
 use App\Models\School;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -114,6 +116,11 @@ class PostulantService
     {
         try {
             $postulant = Postulant::findOrFail($id);
+
+            if (!in_array($postulant->estado_postulante_id, Constants::ESTADOS_VALIDOS_POSTULANTE_ADMISION)) {
+                throw new Exception('No se puede generar el PDF para un postulante con estado válido o posterior.');
+            }
+
             $today = UtilFunction::getDateToday();
             $pathImagePostulante =  Postulant::getImagePathByDni($postulant);
             $process = Process::getProcessNumber();
@@ -156,7 +163,7 @@ class PostulantService
 
             return PDF::loadView('reports.pdf-postulante', $data)->stream();
         } catch (Exception $e) {
-            throw new Exception('Error al generar PDF: ' . $e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -167,7 +174,7 @@ class PostulantService
     {
         return $this->getPostulantsByFolder(
             Constants::CARPETA_ARCHIVOS_VALIDOS,
-            Constants::ESTADO_INSCRITO,
+            PostulantState::INSCRITO_WEB,
             $request
         );
     }
@@ -179,20 +186,22 @@ class PostulantService
     {
         return $this->getPostulantsByFolder(
             Constants::CARPETA_ARCHIVOS_OBSERVADOS,
-            Constants::ESTADO_INSCRITO,
+            PostulantState::INSCRITO_WEB,
             $request
         );
     }
 
     /**
      * Lista postulantes con archivos observados reiterados y estado observado
+     * Excluye los que ya tienen archivos en la carpeta de válidos
      */
     public function getObservedReiteratedFiles(Request $request)
     {
         return $this->getPostulantsByFolder(
-            Constants::CARPETA_ARCHIVOS_OBSERVADOS,
-            Constants::ESTADO_OBSERVADO,
-            $request
+            Constants::CARPETA_ARCHIVOS_RECTIFICADOS,
+            PostulantState::ARCHIVOS_ENVIO_OBSERVADOS,
+            $request,
+            Constants::CARPETA_ARCHIVOS_VALIDOS
         );
     }
 
@@ -202,8 +211,8 @@ class PostulantService
     public function getRectifiedFiles(Request $request)
     {
         return $this->getPostulantsByFolder(
-            Constants::CARPETA_ARCHIVOS_RECTIFICADOS,
-            Constants::ESTADO_ENVIO_OBSERVADO,
+            Constants::CARPETA_ARCHIVOS_VALIDOS,
+            PostulantState::ARCHIVOS_ENVIO_OBSERVADOS,
             $request
         );
     }
@@ -211,8 +220,9 @@ class PostulantService
     /**
      * Obtiene postulantes cuyo DNI existe en las 3 subcarpetas de la carpeta indicada
      * y cuyo estado_postulante_id coincide con el estado dado.
+     * Opcionalmente excluye DNIs que ya existan en otra carpeta (ej: válidos).
      */
-    private function getPostulantsByFolder(string $folder, string $estadoId, Request $request)
+    private function getPostulantsByFolder(string $folder, string $estadoId, Request $request, ?string $excludeFolder = null)
     {
         $disk = Constants::DISK_STORAGE;
 
@@ -222,6 +232,12 @@ class PostulantService
 
         // Solo DNIs que existen en las 3 carpetas
         $dnisCompletos = $dnisFotoCarnet->intersect($dnisDniAnverso)->intersect($dnisDniReverso)->values();
+
+        // Excluir DNIs que ya están en la carpeta indicada (ya fueron validados)
+        if ($excludeFolder) {
+            $dnisExcluir = $this->extractDnisFromFolder($disk, $excludeFolder . Constants::CARPETA_FOTO_CARNET, '');
+            $dnisCompletos = $dnisCompletos->diff($dnisExcluir)->values();
+        }
 
         $query = $this->model->newQuery()->with('files');
         $query->whereIn('num_documento', $dnisCompletos)
@@ -390,6 +406,7 @@ class PostulantService
 
     /**
      * Rectifica las fotos de un postulante guardándolas en archivos_rectificados
+     * y elimina lógicamente los archivos anteriores (original y rectificados previos)
      */
     public function rectifyFiles(array $data, string $token): Postulant
     {
@@ -404,6 +421,7 @@ class PostulantService
         $numDocumento = $postulant->num_documento;
 
         if (isset($data['foto_postulante'])) {
+            $this->softDeletePreviousFiles($postulant, ['foto_postulante', 'foto_postulante_rectificado']);
             $this->attachFile(
                 $postulant, $data['foto_postulante'], 'image', 'foto_postulante_rectificado',
                 Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_FOTO_CARNET, $numDocumento
@@ -411,6 +429,7 @@ class PostulantService
         }
 
         if (isset($data['dni_anverso'])) {
+            $this->softDeletePreviousFiles($postulant, ['foto_dni_anverso', 'foto_dni_anverso_rectificado']);
             $this->attachFile(
                 $postulant, $data['dni_anverso'], 'image', 'foto_dni_anverso_rectificado',
                 Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_DNI_ANVERSO, 'A-' . $numDocumento
@@ -418,6 +437,7 @@ class PostulantService
         }
 
         if (isset($data['dni_reverso'])) {
+            $this->softDeletePreviousFiles($postulant, ['foto_dni_reverso', 'foto_dni_reverso_rectificado']);
             $this->attachFile(
                 $postulant, $data['dni_reverso'], 'image', 'foto_dni_reverso_rectificado',
                 Constants::CARPETA_ARCHIVOS_RECTIFICADOS . Constants::CARPETA_DNI_REVERSO, 'R-' . $numDocumento
@@ -425,9 +445,19 @@ class PostulantService
         }
 
         // Actualizar estado a envío observado
-        $postulant->update(['estado_postulante_id' => Constants::ESTADO_ENVIO_OBSERVADO]);
+        $postulant->update(['estado_postulante_id' => PostulantState::ARCHIVOS_ENVIO_OBSERVADOS]);
 
         return $postulant->fresh();
+    }
+
+    /**
+     * Elimina lógicamente los archivos anteriores de un postulante por tipo
+     */
+    private function softDeletePreviousFiles(Postulant $postulant, array $typeEntities): void
+    {
+        $postulant->files()
+            ->whereIn('type_entitie', $typeEntities)
+            ->each(fn(File $file) => $file->delete());
     }
 
     private function attachFile(Postulant $postulant, $uploadedFile, string $type, string $typeEntitie, string $directory, string $customName): void
