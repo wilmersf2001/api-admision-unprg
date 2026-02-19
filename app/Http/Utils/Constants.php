@@ -7,7 +7,7 @@ use App\Models\PostulantState;
 class Constants
 {
   // TIEMPO DE EXPIRACIÓN DEL TOKEN DE INSCRIPCIÓN EN MINUTOS
-  public const TOKEN_EXPIRATION_MINUTES = 5;
+  public const TOKEN_EXPIRATION_MINUTES = 30;
   //RUTAS QR
   public const RUTA_FOTO_QR = 'temp/';
   public const RUTA_FOTO_ANTIGUA_QR = 'temp/qr-antiguo/';
