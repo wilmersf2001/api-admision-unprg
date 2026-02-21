@@ -106,6 +106,46 @@ class Postulant extends Model
         return self::whereIn('id', $ids)->update(['estado_postulante_id' => $status]);
     }
 
+    public function setNombresAttribute($value)
+    {
+        $this->attributes['nombres'] = strtoupper($value);
+    }
+
+    public function setApPaternoAttribute($value)
+    {
+        $this->attributes['ap_paterno'] = strtoupper($value);
+    }
+
+    public function setApMaternoAttribute($value)
+    {
+        $this->attributes['ap_materno'] = strtoupper($value);
+    }
+
+    public function setDireccionAttribute($value)
+    {
+        $this->attributes['direccion'] = strtoupper($value);
+    }
+
+    public function setNombresApoderadoAttribute($value)
+    {
+        $this->attributes['nombres_apoderado'] = strtoupper($value);
+    }
+
+    public function setApPaternoApoderadoAttribute($value)
+    {
+        $this->attributes['ap_paterno_apoderado'] = strtoupper($value);
+    }
+
+    public function setApMaternoApoderadoAttribute($value)
+    {
+        $this->attributes['ap_materno_apoderado'] = strtoupper($value);
+    }
+
+    public function setCorreoAttribute($value)
+    {
+        $this->attributes['correo'] = strtolower($value);
+    }
+
     /**
      * Relación con el pago del banco
      */

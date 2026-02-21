@@ -44,4 +44,9 @@ class Country extends Model
             'default' => 'id'
         ];
     }
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
 }

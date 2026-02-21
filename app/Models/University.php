@@ -25,11 +25,6 @@ class University extends Model
         'estado' => 'boolean',
     ];
 
-    public function setNombreAttribute($value)
-    {
-        $this->attributes['nombre'] = strtoupper($value);
-    }
-
     protected function getFilterConfig(): array
     {
         return [
@@ -52,5 +47,10 @@ class University extends Model
             'allowed' => ['nombre', 'tipo', 'estado', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
     }
 }

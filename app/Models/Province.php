@@ -42,6 +42,11 @@ class Province extends Model
         ];
     }
 
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class, 'departamento_id');

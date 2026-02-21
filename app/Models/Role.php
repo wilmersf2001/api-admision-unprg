@@ -20,15 +20,6 @@ class Role extends Model
         'created_by',
     ];
 
-    public function setNameAttribute($value)
-    {
-        $this->attributes['name'] = strtoupper($value);
-    }
-
-    public function setDescriptionAttribute($value){
-        $this->attributes['description'] = strtoupper($value);
-    }
-
     protected $casts = [
         'is_active' => 'boolean',
     ];
@@ -52,6 +43,15 @@ class Role extends Model
             'allow' => ['name', 'description', 'created_at'],
             'default' => ['name' => 'asc'],
         ];
+    }
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = strtoupper($value);
+    }
+
+    public function setDescriptionAttribute($value){
+        $this->attributes['description'] = strtoupper($value);
     }
 
      /**

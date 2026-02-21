@@ -45,17 +45,17 @@ class Modality extends Model
         ];
     }
 
-    public function setDescripcionAttribute($value)
-    {
-        $this->attributes['descripcion'] = strtoupper($value);
-    }
-
     protected function getSortConfig(): array
     {
         return [
             'allowed' => ['descripcion', 'monto_nacional', 'monto_particular', 'estado', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function setDescripcionAttribute($value)
+    {
+        $this->attributes['descripcion'] = strtoupper($value);
     }
 
     public function exam()

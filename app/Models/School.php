@@ -60,6 +60,16 @@ class School extends Model
         ];
     }
 
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
+    public function setCentroPobladoAttribute($value)
+    {
+        $this->attributes['centro_poblado'] = strtoupper($value);
+    }
+
     public function district()
     {
         return $this->belongsTo(District::class, 'distrito_id');

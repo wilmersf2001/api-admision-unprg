@@ -28,16 +28,6 @@ class AcademicProgram extends Model
         'estado' => 'boolean',
     ];
 
-    public function setCodigoAttribute($value)
-    {
-        $this->attributes['codigo'] = strtoupper($value);
-    }
-
-    public function setNombreAttribute($value)
-    {
-        $this->attributes['nombre'] = strtoupper($value);
-    }
-
     protected function getFilterConfig(): array
     {
         return [
@@ -66,6 +56,16 @@ class AcademicProgram extends Model
             'allowed' => ['codigo', 'nombre', 'estado', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function setCodigoAttribute($value)
+    {
+        $this->attributes['codigo'] = strtoupper($value);
+    }
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
     }
 
     public function sede()

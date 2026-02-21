@@ -40,16 +40,6 @@ class Process extends Model
         return self::where('estado', 1)->exists();
     }
 
-    public function setNumeroAttribute($value)
-    {
-        $this->attributes['numero'] = strtoupper($value);
-    }
-
-    public function setDescripcionAttribute($value)
-    {
-        $this->attributes['descripcion'] = strtoupper($value);
-    }
-
     protected function getFilterConfig(): array
     {
         return [
@@ -77,5 +67,15 @@ class Process extends Model
             'allowed' => ['numero', 'descripcion', 'fecha_inicio', 'fecha_fin', 'estado', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function setNumeroAttribute($value)
+    {
+        $this->attributes['numero'] = strtoupper($value);
+    }
+
+    public function setDescripcionAttribute($value)
+    {
+        $this->attributes['descripcion'] = strtoupper($value);
     }
 }

@@ -25,16 +25,6 @@ class AcademicGroup extends Model
         'estado' => 'boolean',
     ];
 
-    public function setLetraAttribute($value)
-    {
-        $this->attributes['letra'] = strtoupper($value);
-    }
-
-    public function setNombreAttribute($value)
-    {
-        $this->attributes['nombre'] = strtoupper($value);
-    }
-
     protected function getFilterConfig(): array
     {
         return [
@@ -54,5 +44,15 @@ class AcademicGroup extends Model
             'allowed' => ['letra', 'nombre', 'estado', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function setLetraAttribute($value)
+    {
+        $this->attributes['letra'] = strtoupper($value);
+    }
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
     }
 }

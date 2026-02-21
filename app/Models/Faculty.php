@@ -27,26 +27,6 @@ class Faculty extends Model
         'estado' => 'boolean',
     ];
 
-    public function setCodigoAttribute($value)
-    {
-        $this->attributes['codigo'] = strtoupper($value);
-    }
-
-    public function setNombreAttribute($value)
-    {
-        $this->attributes['nombre'] = strtoupper($value);
-    }
-
-    public function setAbreviaturaAttribute($value)
-    {
-        $this->attributes['abreviatura'] = strtoupper($value);
-    }
-
-    public function setDecanoAttribute($value)
-    {
-        $this->attributes['decano'] = strtoupper($value);
-    }
-
     protected function getFilterConfig(): array
     {
         return [
@@ -66,5 +46,25 @@ class Faculty extends Model
             'allowed' => ['codigo', 'nombre', 'abreviatura', 'decano', 'estado', 'created_at', 'updated_at'],
             'default' => 'id'
         ];
+    }
+
+    public function setCodigoAttribute($value)
+    {
+        $this->attributes['codigo'] = strtoupper($value);
+    }
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = strtoupper($value);
+    }
+
+    public function setAbreviaturaAttribute($value)
+    {
+        $this->attributes['abreviatura'] = strtoupper($value);
+    }
+
+    public function setDecanoAttribute($value)
+    {
+        $this->attributes['decano'] = strtoupper($value);
     }
 }
