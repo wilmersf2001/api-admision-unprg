@@ -19,6 +19,7 @@ class Modality extends Model
         'descripcion',
         'monto_nacional',
         'monto_particular',
+        'anio_proceso',
         'estado',
         'examen_id',
     ];

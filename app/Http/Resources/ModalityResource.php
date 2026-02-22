@@ -19,6 +19,7 @@ class ModalityResource extends JsonResource
             'descripcion' => $this->descripcion,
             'monto_nacional' => $this->monto_nacional,
             'monto_particular' => $this->monto_particular,
+            'anio_proceso' => $this->anio_proceso,
             'estado' => $this->estado,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

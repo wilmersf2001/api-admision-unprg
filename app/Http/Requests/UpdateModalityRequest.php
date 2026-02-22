@@ -6,25 +6,22 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateModalityRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    protected function prepareForValidation(): void
     {
-        return true;
+        if ($this->anio_proceso === 0 || $this->anio_proceso === '0') {
+            $this->merge([
+                'anio_proceso' => null
+            ]);
+        }
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
             'descripcion' => 'sometimes|required|string|max:255',
             'monto_nacional' => 'sometimes|required|numeric|min:0',
             'monto_particular' => 'sometimes|required|numeric|min:0',
+            'anio_proceso' => 'sometimes|nullable|integer|min:1950|max:' . (date('Y') + 1),
             'estado' => 'sometimes|required|boolean',
             'examen_id' => 'sometimes|required|exists:tb_examen,id',
         ];
@@ -44,6 +41,10 @@ class UpdateModalityRequest extends FormRequest
             'monto_particular.required' => 'El monto internacional es obligatorio.',
             'monto_particular.numeric' => 'El monto internacional debe ser un número.',
             'monto_particular.min' => 'El monto internacional no debe ser negativo.',
+
+            'anio_proceso.integer' => 'El año del proceso debe ser un número entero.',
+            'anio_proceso.min' => 'El año del proceso no puede ser anterior a 1950.',
+            'anio_proceso.max' => 'El año del proceso no puede ser posterior al próximo año.',
 
             'estado.required' => 'El estado es obligatorio.',
             'estado.boolean' => 'El estado debe ser verdadero o falso.',

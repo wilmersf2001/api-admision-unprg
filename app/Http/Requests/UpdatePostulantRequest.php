@@ -22,7 +22,7 @@ class UpdatePostulantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => 'sometimes|required|string|max:100',
+            'nombres' => 'sometimes|required|string|max:100',
             'ap_paterno' => 'sometimes|required|string|max:100',
             'ap_materno' => 'sometimes|required|string|max:100',
             'fecha_nacimiento' => 'sometimes|required|date',
@@ -35,8 +35,8 @@ class UpdatePostulantRequest extends FormRequest
             'num_voucher' => 'sometimes|required|string|max:50',
             'direccion' => 'sometimes|required|string|max:255',
             'correo' => 'sometimes|required|email|max:100',
-            'telefono' => 'sometimes|nullable|string|max:20',
-            'telefono_ap' => 'sometimes|nullable|string|max:20',
+            'telefono' => 'sometimes|nullable|string|max:9',
+            'telefono_ap' => 'sometimes|nullable|string|max:9',
             'anno_egreso' => 'sometimes|required|integer|min:1900|max:' . date('Y'),
             'fecha_inscripcion' => 'sometimes|required|date',
             'num_veces_unprg' => 'sometimes|required|integer|min:0',
@@ -49,7 +49,7 @@ class UpdatePostulantRequest extends FormRequest
             'tipo_direccion_id' => 'sometimes|required|exists:tb_tipo_direccion,id',
             'programa_academico_id' => 'sometimes|required|exists:tb_programa_academico,id',
             'colegio_id' => 'sometimes|required|exists:tb_colegio,id',
-            'universidad_id' => 'sometimes|required|exists:tb_universidad,id',
+            'universidad_id' => 'sometimes|nullable|exists:tb_universidad,id',
             'modalidad_id' => 'sometimes|required|exists:tb_modalidad,id',
             'sede_id' => 'sometimes|required|exists:tb_sede,id',
             'pais_id' => 'sometimes|required|exists:tb_pais,id',

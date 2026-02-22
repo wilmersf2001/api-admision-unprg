@@ -5,6 +5,7 @@ use App\Http\Controllers\AcademicProgramController;
 use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\ContentController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistributionVacanciesController;
@@ -50,6 +51,7 @@ Route::post('banks/verify-payment', [BankController::class, 'VerifyPayment']);
 
 // Ruta pública para registro de postulantes (requiere token de inscripción)
 Route::post('postulants', [PostulantController::class, 'store']);
+Route::get('postulants/{postulant}/postulant-file', [PostulantController::class, 'getFile']);
 Route::post('postulants/check-registration', [PostulantController::class, 'checkRegistration']);
 Route::post('postulants/rectify-files', [PostulantController::class, 'rectifyFiles']);
 
@@ -150,7 +152,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('postulants')->group(function () {
         Route::get('/', [PostulantController::class, 'index']);
         Route::get('/export', [PostulantController::class, 'export']);
-        Route::get('/{postulant}/postulant-file', [PostulantController::class, 'getFile']);
         Route::get('/valid-files', [PostulantController::class, 'validFiles']);
         Route::get('/observed-files', [PostulantController::class, 'observedFiles']);
         Route::get('/observed-reiterated-files', [PostulantController::class, 'observedReiteratedFiles']);
@@ -254,5 +255,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/save-to-role', [PermissionController::class, 'saveToRole']);
         Route::get('/{permission}', [PermissionController::class, 'show']);
         Route::delete('/remove-from-role', [PermissionController::class, 'removeFromRole']);
+    });
+
+    // Route Content
+    Route::prefix('contents')->group(function () {
+        Route::get('/', [ContentController::class, 'index']);
+        Route::post('/', [ContentController::class, 'store']);
+        Route::get('/{content}', [ContentController::class, 'show']);
+        Route::put('/{content}', [ContentController::class, 'update']);
+        Route::delete('/{content}', [ContentController::class, 'destroy']);
     });
 });
