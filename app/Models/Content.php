@@ -31,13 +31,12 @@ class Content extends Model
     protected function getFilterConfig(): array
     {
         return [
-            'title' => [
-                'column' => 'title',
-                'operator' => 'LIKE',
+            'search' => [
+                'type' => 'global_search',
+                'columns' => ['title'],
             ],
              'code' => [
                 'column' => 'code',
-                'operator' => 'LIKE',
             ],
         ];
     }
@@ -49,4 +48,9 @@ class Content extends Model
             'default' => 'id',
         ];
     }
+
+    const SWORN_DECLARATION_WEB = 'SWORN_DECLARATION_WEB';
+    const SWORN_DECLARATION_FORMAT = 'SWORN_DECLARATION_FORMAT';
+    const SUCCESSFUL_MESSAGE = 'SUCCESSFUL_MESSAGE';
+    const MESSAGE_REGISTRATION_INQUIRY = 'MESSAGE_REGISTRATION_INQUIRY';
 }

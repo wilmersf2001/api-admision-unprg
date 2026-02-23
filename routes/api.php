@@ -46,6 +46,8 @@ Route::get('departments', [DepartmentController::class, 'index']);
 Route::get('provinces', [ProvinceController::class, 'index']);
 Route::get('districts', [DistrictController::class, 'index']);
 Route::get('schools', [SchoolController::class, 'index']);
+Route::get('countries', [CountryController::class, 'index']);
+Route::get('content', [ContentController::class, 'index']);
 Route::get('processes/recent-process', [ProcessController::class, 'recentProcess']);
 Route::post('banks/verify-payment', [BankController::class, 'VerifyPayment']);
 
@@ -209,11 +211,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [BankController::class, 'index']);
         Route::get('/export', [BankController::class, 'export']);
         Route::get('/payment-report', [BankController::class, 'paymentReport']);
-    });
-
-    // Route Countries
-    Route::prefix('countries')->group(function () {
-        Route::get('/', [CountryController::class, 'index']);
     });
 
     // Route Send Email

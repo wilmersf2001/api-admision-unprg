@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use App\Http\Utils\Constants;
 use App\Http\Utils\UtilFunction;
 use App\Models\Bank;
+use App\Models\Content;
 use App\Models\District;
 use App\Models\File;
 use App\Models\Postulant;
@@ -159,6 +160,8 @@ class PostulantService
                 'laberBirth' => $postulant->tipo_documento == Postulant::DOCUMENT_TYPE_DNI ? 'Lugar de nacimiento' : 'País de procedencia',
                 'base64ImagePostulante' => "data:image/png;base64," . base64_encode(file_get_contents(public_path($pathImagePostulante))),
                 'base64ImageLogoUnprg' => "data:image/png;base64," . base64_encode(file_get_contents(public_path('images/logo_color.png'))),
+                'swornDeclarationTitle' => Content::where('code', Content::SWORN_DECLARATION_FORMAT)->first()->title ?? 'DECLARACIÓN JURADA',
+                'swornDeclarationContent' => Content::where('code', Content::SWORN_DECLARATION_FORMAT)->first()->content ?? 'No se encontró el contenido de la declaración jurada.',
             ];
 
             return PDF::loadView('reports.pdf-postulante', $data)->stream();

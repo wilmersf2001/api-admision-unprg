@@ -214,33 +214,13 @@
                     </ul>
                 </div>
                 <div class="info-contacto">
-                    <h5 class="items">DECLARACIÓN JURADA</h5>
+                    <h5 class="items">{{$swornDeclarationTitle}}</h5>
                     <ul class="declaracion">
-                        <li>Conozco, acepto y me someto a las bases, condiciones y procedimientos establecidos en el
-                            Reglamento del
-                            Concurso de Admisión , de la Universidad Nacional Pedro Ruiz Gallo.</li>
-                        <li>La información y fotografia registrada es AUTÉNTICA y que las imágenes de mi DNI enviados
-                            para
-                            mi
-                            inscripción como postulante al presente Concurso de Admisión, son copia fiel al original; en
-                            caso de faltar
-                            a la verdad, me someto a las sanciones correspondientes (Art.23 del Reglamento del presente
-                            Concurso de
-                            Admisión).</li>
-                        <li>No tengo impedimento para participar en el Concurso de Admisión.</li>
-                        <li>
-                            De alcanzar una vacante, me comprometo a regularizar mi expediente en la fecha establecida
-                            en el
-                            cronograma
-                            del presente Concurso de Admisión en caso contrario me someto a las sanciones
-                            correspondientes
-                            (Art.68 del
-                            Reglamento del presente Concurso de Admisión).
-                        </li>
-                        <li>
-                            He culminado el 5to año de Educación Secundaria antes del Concurso de Admisión
-                            .
-                        </li>
+                        @forelse($swornDeclarationContent as $item)
+                            <li>{{ $item }}</li>
+                        @empty
+                            <li>No se encontró el contenido de la declaración jurada.</li>
+                        @endforelse
                     </ul>
                 </div>
             </td>

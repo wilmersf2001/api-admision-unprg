@@ -88,17 +88,31 @@ class Postulant extends Model
 
     public static function getImagePathByDni(Postulant $postulant): string
     {
-        $urlPhotoValid = Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_FOTO_CARNET . $postulant->num_documento . '.jpeg';
+        // Intentar obtener la foto desde la relación files
+        $file = $postulant->files()
+            ->where('type_entitie', 'foto_postulante')
+            ->whereNull('deleted_at')
+            ->first();
 
-        if (Storage::disk(Constants::DISK_STORAGE)->exists($urlPhotoValid)) {
-            $dniPath = Storage::url($urlPhotoValid);
-
+        if ($file && Storage::disk($file->disk)->exists($file->path)) {
             if (in_array($postulant->estado_postulante_id, Constants::ESTADOS_VALIDOS_POSTULANTE_ADMISION)) {
-                return $dniPath;
+                return Storage::url($file->path);
+            }
+            return Storage::url($file->path);
+        }
+
+        // Fallback: buscar en la carpeta de archivos válidos
+        $directory = Constants::CARPETA_ARCHIVOS_VALIDOS . Constants::CARPETA_FOTO_CARNET;
+        $files = Storage::disk(Constants::DISK_STORAGE)->files($directory);
+
+        foreach ($files as $filePath) {
+            $filename = pathinfo($filePath, PATHINFO_FILENAME);
+            if ($filename === $postulant->num_documento) {
+                return Storage::url($filePath);
             }
         }
 
-        return $dniPath;
+        return '';
     }
 
     public static function bulkUpdateStatus($ids, $status)
