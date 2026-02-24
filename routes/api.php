@@ -6,6 +6,7 @@ use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\ContentController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistributionVacanciesController;
@@ -254,9 +255,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/remove-from-role', [PermissionController::class, 'removeFromRole']);
     });
 
+    // Route Dashboard
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/summary', [DashboardController::class, 'summary']);
+        Route::get('/academic-programs', [DashboardController::class, 'academicPrograms']);
+        Route::get('/regions', [DashboardController::class, 'regions']);
+        Route::get('/top-schools', [DashboardController::class, 'topSchools']);
+        Route::get('/inscription-trend', [DashboardController::class, 'inscriptionTrend']);
+    });
+
     // Route Content
     Route::prefix('contents')->group(function () {
-        Route::get('/', [ContentController::class, 'index']);
         Route::post('/', [ContentController::class, 'store']);
         Route::get('/{content}', [ContentController::class, 'show']);
         Route::put('/{content}', [ContentController::class, 'update']);
