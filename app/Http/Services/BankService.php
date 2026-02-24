@@ -26,7 +26,6 @@ class BankService
     {
         $query = $this->model->newQuery();
         $query->applyFilters($request);
-        $query->whereIn('cod_concepto', [Bank::CONCEPTO_NACIONAL, Bank::CONCEPTO_PARTICULAR]);
         $query->applySort($request);
         return $query->applyPagination($request);
     }
@@ -36,14 +35,29 @@ class BankService
         $query = $this->model->newQuery();
         $query->applyFilters($request);
 
-        $totalNacional = (clone $query)->where('cod_concepto', Bank::CONCEPTO_NACIONAL)->count();
-        $totalParticular = (clone $query)->where('cod_concepto', Bank::CONCEPTO_PARTICULAR)->count();
-        $total = $totalNacional + $totalParticular;
+        // Obtener totales y montos agrupados por concepto
+        $totalesPorConcepto = (clone $query)
+            ->selectRaw('cod_concepto, COUNT(*) as total, SUM(importe) as monto')
+            ->groupBy('cod_concepto')
+            ->get();
+
+        $totalesFormatted = [];
+        $totalGeneral = 0;
+        $montoTotalGeneral = 0;
+
+        foreach ($totalesPorConcepto as $concepto) {
+            $totalesFormatted[$concepto->cod_concepto] = [
+                'total' => $concepto->total,
+                'monto' => (float) $concepto->monto,
+            ];
+            $totalGeneral += $concepto->total;
+            $montoTotalGeneral += $concepto->monto;
+        }
 
         return [
-            'total_nacional' => $totalNacional,
-            'total_particular' => $totalParticular,
-            'total' => $total,
+            'totales_por_concepto' => $totalesFormatted,
+            'total_general' => $totalGeneral,
+            'monto_total_general' => (float) $montoTotalGeneral,
         ];
     }
 
