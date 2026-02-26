@@ -54,6 +54,8 @@ class Role extends Model
         $this->attributes['description'] = strtoupper($value);
     }
 
+    const ROLE_ADMIN_ID = 1;
+
      /**
      * Relación con RolePermission
      */

@@ -39,6 +39,11 @@ class RoleService
         if (!$record) {
             throw new Exception($this->nameModel . ' no encontrado');
         }
+
+        if (isset($data['is_active']) && !$data['is_active'] && $record->id === Role::ROLE_ADMIN_ID) {
+            throw new Exception('No se puede desactivar el usuario administrador');
+        }
+
         try {
             $record->update($data);
             return $record;
@@ -52,11 +57,16 @@ class RoleService
         if (!$record) {
             throw new Exception($this->nameModel . ' no encontrado');
         }
+
+        if ($record->id === Role::ROLE_ADMIN_ID) {
+            throw new Exception('No se puede eliminar el usuario administrador');
+        }
+
         try {
             $record->delete();
             return true;
         } catch (\Throwable $th) {
-            throw new Exception('Error al eliminar ' . $this->nameModel . ': ' . $th->getMessage());
+            throw new Exception($th->getMessage());
         }
     }
 }

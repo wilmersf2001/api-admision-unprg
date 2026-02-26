@@ -41,16 +41,6 @@ class RoleController extends Controller
         ]);
     }
 
-    public function recentRole()
-    {
-        try {
-            $role = Role::orderBy('fecha_inicio', 'desc')->first();
-            return $this->successResponse($role, "Número de proceso actual obtenido exitosamente");
-        } catch (Exception $exception) {
-            return $this->errorResponse('Error al obtener el número de proceso actual', Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
     public function store(StoreRoleRequest $request)
     {
         try {
@@ -88,7 +78,7 @@ class RoleController extends Controller
             $this->service->delete($role->id);
             return $this->successResponse(null, $this->nameModel . " eliminado exitosamente");
         } catch (Exception $exception) {
-            return $this->errorResponse('Error al eliminar ' . $this->nameModel, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

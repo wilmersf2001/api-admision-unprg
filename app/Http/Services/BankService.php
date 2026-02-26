@@ -37,8 +37,8 @@ class BankService
 
         // Obtener totales y montos agrupados por concepto
         $totalesPorConcepto = (clone $query)
-            ->selectRaw('cod_concepto, COUNT(*) as total, SUM(importe) as monto')
-            ->groupBy('cod_concepto')
+            ->selectRaw('cod_concepto, importe, COUNT(*) as total, SUM(importe) as monto')
+            ->groupBy('cod_concepto', 'importe')
             ->get();
 
         $totalesFormatted = [];
@@ -47,8 +47,9 @@ class BankService
 
         foreach ($totalesPorConcepto as $concepto) {
             $totalesFormatted[$concepto->cod_concepto] = [
+                'importe' => (float) $concepto->importe,
                 'total' => $concepto->total,
-                'monto' => (float) $concepto->monto,
+                'monto_total' => (float) $concepto->monto,
             ];
             $totalGeneral += $concepto->total;
             $montoTotalGeneral += $concepto->monto;
