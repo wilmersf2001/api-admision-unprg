@@ -57,6 +57,8 @@ Route::post('postulants', [PostulantController::class, 'store']);
 Route::get('postulants/{postulant}/postulant-file', [PostulantController::class, 'getFile']);
 Route::post('postulants/check-registration', [PostulantController::class, 'checkRegistration']);
 Route::post('postulants/rectify-files', [PostulantController::class, 'rectifyFiles']);
+Route::post('postulants/request-update-postulant', [PostulantController::class, 'requestUpdatePostulant']);
+Route::post('postulants/create-update-request', [PostulantController::class, 'createUpdateRequest']);
 
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {

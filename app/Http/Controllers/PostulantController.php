@@ -41,12 +41,6 @@ class PostulantController extends Controller
         ]);
     }
 
-    /**
-     * Registra un postulante usando el token de inscripción (ruta pública)
-     *
-     * @param StorePostulantRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(StorePostulantRequest $request)
     {
         // Obtener el token del header
@@ -213,12 +207,7 @@ class PostulantController extends Controller
         try {
             $result = $this->service->checkRegistration($request->only(['num_documento', 'num_doc_depo']));
 
-            return $this->successResponse([
-                'postulant' => new PostulantResource($result['postulant']),
-                'token_rectificacion' => $result['token_rectificacion'],
-                'expires_in' => $result['expires_in'],
-                'expires_at' => $result['expires_at'],
-            ], 'Postulante encontrado exitosamente');
+            return $this->successResponse($result, 'Postulante encontrado exitosamente');
 
         } catch (Exception $exception) {
             return $this->errorResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
@@ -240,6 +229,7 @@ class PostulantController extends Controller
             return $this->validationErrorResponse($validator->errors()->first());
         }
 
+        // Obtener el token de rectificación del header
         $token = $request->header('X-Rectification-Token');
 
         if (!$token) {
@@ -266,6 +256,64 @@ class PostulantController extends Controller
             }
 
             return $this->errorResponse($exception->getMessage(), $statusCode);
+        }
+    }
+
+    public function requestUpdatePostulant(Request $request)
+    {
+        $rules = [
+            'num_documento' => 'required|string',
+            'num_doc_depo' => 'required|string',
+        ];
+
+        $validator = validator($request->all(), $rules, [
+            'num_documento.required' => 'El número de documento es obligatorio.',
+            'num_doc_depo.required' => 'El número de documento del depositante es obligatorio.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+        try {
+            $result = $this->service->requestUpdatePostulant($request->only(array_keys($rules)));
+
+            return $this->successResponse($result, 'Solicitud de actualización enviada exitosamente');
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function createUpdateRequest(Request $request)
+    {
+        $rules = [
+            'reason' => 'required|string|max:500',
+        ];
+
+        $validator = validator($request->all(), $rules, [
+            'reason.required' => 'El motivo de la solicitud es obligatorio.',
+            'reason.max'      => 'El motivo no puede superar los 500 caracteres.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+        $token = $request->header('X-Update-Request-Token');
+
+        if (!$token) {
+            return $this->errorResponse(
+                'Token de solicitud requerido. Verifique su identidad primero.',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        try {
+            $result = $this->service->createUpdateRequest($request->only(array_keys($rules)), $token);
+
+            return $this->successResponse($result, 'Solicitud de actualización registrada exitosamente');
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 

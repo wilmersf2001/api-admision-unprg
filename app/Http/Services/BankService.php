@@ -121,10 +121,6 @@ class BankService
 
     /**
      * Valida un token de inscripción y retorna los datos del payload
-     *
-     * @param string $token
-     * @return object
-     * @throws Exception
      */
     public function validateInscriptionToken(string $token): object
     {
@@ -155,12 +151,48 @@ class BankService
     }
 
     /**
-     * Obtiene un registro de banco por ID con bloqueo para transacción
-     *
-     * @param int $bankId
-     * @return Bank
-     * @throws Exception
+     * Valida el token de rectificación de archivos observador y retorna el payload
      */
+    public function validateRectificationToken(string $token): object
+    {
+        try {
+            $payload = JWT::decode($token, new Key(config('app.key'), 'HS256'));
+
+            if (!isset($payload->type) || $payload->type !== 'rectification') {
+                throw new Exception('Token de rectificación inválido.');
+            }
+
+            return $payload;
+        } catch (ExpiredException $e) {
+            throw new Exception('El tiempo para rectificar ha expirado. Verifique su registro nuevamente.');
+        } catch (Exception $e) {
+            if (str_contains($e->getMessage(), 'expirado') || str_contains($e->getMessage(), 'rectificar')) {
+                throw $e;
+            }
+            throw new Exception('Token de rectificación inválido.');
+        }
+    }
+
+    /**
+     * Valida el token de actualización de datos de postulante y retorna el payload
+     */
+    public function validateUpdateRequestToken(string $token): object
+    {
+        try {
+            $payload = JWT::decode($token, new Key(config('app.key'), 'HS256'));
+
+            if (!isset($payload->type) || $payload->type !== 'update_request') {
+                throw new Exception('Token de rectificación inválido.');
+            }
+
+            return $payload;
+        } catch (ExpiredException $e) {
+            throw new Exception('El tiempo para actualizar el pago ha expirado. Verifique su pago nuevamente.');
+        } catch (Exception $e) {
+            throw new Exception('Token de actualización inválido.');
+        }
+    }
+
     public function getBankForRegistration(int $bankId): Bank
     {
         $bank = $this->model
@@ -179,13 +211,6 @@ class BankService
         return $bank;
     }
 
-    /**
-     * Marca un pago como usado por un postulante
-     *
-     * @param Bank $bank
-     * @param int $postulantId
-     * @return void
-     */
     public function markAsUsed(Bank $bank, int $postulantId): void
     {
         $bank->update([
@@ -269,4 +294,5 @@ class BankService
 
         return PDF::loadView('reports.pdf-pagos', $data)->stream();
     }
+
 }

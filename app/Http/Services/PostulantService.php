@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Http\Utils\Constants;
 use App\Http\Utils\UtilFunction;
+use App\Mail\UpdateRequestMail;
 use App\Models\Bank;
 use App\Models\Content;
 use App\Models\District;
@@ -12,13 +13,15 @@ use App\Models\Postulant;
 use App\Models\PostulantState;
 use App\Models\Process;
 use App\Models\School;
+use App\Models\UpdateRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PostulantService
 {
@@ -385,35 +388,12 @@ class PostulantService
     }
 
     /**
-     * Valida el token de rectificación y retorna el payload
-     */
-    public function validateRectificationToken(string $token): object
-    {
-        try {
-            $payload = JWT::decode($token, new Key(config('app.key'), 'HS256'));
-
-            if (!isset($payload->type) || $payload->type !== 'rectification') {
-                throw new Exception('Token de rectificación inválido.');
-            }
-
-            return $payload;
-        } catch (\Firebase\JWT\ExpiredException $e) {
-            throw new Exception('El tiempo para rectificar ha expirado. Verifique su registro nuevamente.');
-        } catch (Exception $e) {
-            if (str_contains($e->getMessage(), 'expirado') || str_contains($e->getMessage(), 'rectificar')) {
-                throw $e;
-            }
-            throw new Exception('Token de rectificación inválido.');
-        }
-    }
-
-    /**
      * Rectifica las fotos de un postulante guardándolas en archivos_rectificados
      * y elimina lógicamente los archivos anteriores (original y rectificados previos)
      */
     public function rectifyFiles(array $data, string $token): Postulant
     {
-        $payload = $this->validateRectificationToken($token);
+        $payload = $this->bankService->validateRectificationToken($token);
 
         $postulant = $this->model->find($payload->postulant_id);
 
@@ -475,5 +455,82 @@ class PostulantService
             $directory,
             $customName
         );
+    }
+
+    public function requestUpdatePostulant(array $data): array{
+        //Buscamos el registro del postulante por su número de documento y voucher de pago
+        $bank = Bank::where('num_documento', $data['num_documento'])
+            ->where('num_doc_depo', $data['num_doc_depo'])
+            ->whereNotNull('postulant_id')
+            ->with('postulant')
+            ->first();
+
+        if (!$bank || !$bank->postulant) {
+            throw new Exception('No se encontró un postulante registrado con los datos proporcionados.');
+        }
+
+        $postulant = $bank->postulant;
+
+        // Generar token de actualización con 5 minutos de expiración
+        $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES_REQUEST * 60);
+
+        $payload = [
+            'postulant_id' => $postulant->id,
+            'bank_id' => $bank->id,
+            'num_documento' => $data['num_documento'],
+            'num_doc_depo' => $data['num_doc_depo'],
+            'type' => 'update_request',
+            'iat' => time(),
+            'exp' => $expirationTime,
+        ];
+
+        $token = JWT::encode($payload, config('app.key'), 'HS256');
+
+        return [
+            'postulant' => $postulant,
+            'token_actualizacion' => $token,
+            'expires_in' => Constants::TOKEN_EXPIRATION_MINUTES_REQUEST * 60,
+            'expires_at' => date('Y-m-d H:i:s', $expirationTime),
+        ];
+    }
+
+    public function createUpdateRequest(array $data, string $token): array
+    {
+        $payload = $this->bankService->validateUpdateRequestToken($token);
+
+        $postulant = $this->model->find($payload->postulant_id);
+
+        if (!$postulant) {
+            throw new Exception('Postulante no encontrado.');
+        }
+
+        $hasPending = UpdateRequest::where('postulant_id', $postulant->id)
+            ->where('status', UpdateRequest::STATUS_PENDING)
+            ->exists();
+
+        if ($hasPending) {
+            throw new Exception('Ya tiene una solicitud de actualización pendiente. Debe esperar a que sea atendida antes de generar una nueva.');
+        }
+
+        $uniqueCode = Str::uuid()->toString();
+        $expiresAt  = now()->addHours(Constants::CODIGO_UNICO_EXPIRATION_HOURS);
+
+        UpdateRequest::create([
+            'postulant_id'    => $postulant->id,
+            'status'          => UpdateRequest::STATUS_PENDING,
+            'reason'          => $data['reason'],
+            'unique_code'     => $uniqueCode,
+            'code_used'       => false,
+            'code_expires_at' => $expiresAt,
+        ]);
+
+        Mail::to($postulant->correo)->send(
+            new UpdateRequestMail($postulant, $uniqueCode, $expiresAt->format('d/m/Y H:i'))
+        );
+
+        return [
+            'message'    => 'Su solicitud ha sido registrada. Se ha enviado un código de acceso al correo registrado, válido por 24 horas.',
+            'expires_at' => $expiresAt->format('Y-m-d H:i:s'),
+        ];
     }
 }
