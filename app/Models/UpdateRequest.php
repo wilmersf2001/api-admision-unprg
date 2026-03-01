@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Http\Traits\FlexibleQueries;
 use Illuminate\Database\Eloquent\Model;
 
 class UpdateRequest extends Model
 {
+    use FlexibleQueries;
+
     protected $table = 'tb_update_requests';
 
     const STATUS_PENDING  = 'pending';
@@ -34,6 +37,31 @@ class UpdateRequest extends Model
             'attended_at' => 'datetime',
             'old_values'  => 'array',
             'new_values'  => 'array',
+        ];
+    }
+
+    protected function getFilterConfig(): array
+    {
+        return [
+            'search' => [
+                'type'      => 'global_search',
+                'column'    => ['unique_code', 'reason', 'note'],
+                'relations' => [
+                    'postulant' => ['nombres', 'ap_paterno','ap_materno','num_voucher','num_documento'],
+                ],
+            ],
+            'status' => [
+                'type'   => 'simple',
+                'column' => 'status',
+            ],
+        ];
+    }
+
+    protected function getSortConfig(): array
+    {
+        return [
+            'allowed' => ['created_at', 'attended_at', 'status'],
+            'default' => 'created_at',
         ];
     }
 

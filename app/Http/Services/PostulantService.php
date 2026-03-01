@@ -471,6 +471,14 @@ class PostulantService
 
         $postulant = $bank->postulant;
 
+        $hasPending = UpdateRequest::where('postulant_id', $postulant->id)
+            ->where('status', UpdateRequest::STATUS_PENDING)
+            ->exists();
+
+        if ($hasPending) {
+            throw new Exception('Ya tiene una solicitud de actualización pendiente. Debe esperar a que sea atendida antes de generar una nueva.');
+        }
+
         // Generar token de actualización con 5 minutos de expiración
         $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES_REQUEST * 60);
 
@@ -523,10 +531,6 @@ class PostulantService
             'code_used'       => false,
             'code_expires_at' => $expiresAt,
         ]);
-
-        Mail::to($postulant->correo)->send(
-            new UpdateRequestMail($postulant, $uniqueCode, $expiresAt->format('d/m/Y H:i'))
-        );
 
         return [
             'message'    => 'Su solicitud ha sido registrada. Se ha enviado un código de acceso al correo registrado, válido por 24 horas.',

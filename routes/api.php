@@ -26,6 +26,7 @@ use App\Http\Controllers\SedeController;
 use App\Http\Controllers\SendMailController;
 use App\Http\Controllers\TxtFileController;
 use App\Http\Controllers\UniversityController;
+use App\Http\Controllers\UpdateRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ViewController;
 
@@ -272,5 +273,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{content}', [ContentController::class, 'show']);
         Route::put('/{content}', [ContentController::class, 'update']);
         Route::delete('/{content}', [ContentController::class, 'destroy']);
+    });
+
+    // Route Update Requests
+    Route::prefix('update-requests')->group(function () {
+        Route::get('/', [UpdateRequestController::class, 'index']);
+        Route::put('/{updateRequest}/respond', [UpdateRequestController::class, 'respond']);
     });
 });

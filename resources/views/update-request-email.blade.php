@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Código de Actualización - UNPRG</title>
+    <title>Solicitud de Actualización - UNPRG</title>
     <style>
     * {
         margin: 0;
@@ -80,6 +80,7 @@
         text-align: justify;
     }
 
+    /* Aprobado */
     .code-box {
         text-align: center;
         background: linear-gradient(135deg, #f0f4ff 0%, #e6eeff 100%);
@@ -113,6 +114,33 @@
         font-weight: 500;
     }
 
+    /* Rechazado */
+    .rejected-box {
+        text-align: center;
+        background: linear-gradient(135deg, #fff0f0 0%, #ffe6e6 100%);
+        border: 2px dashed #dc2626;
+        border-radius: 10px;
+        padding: 30px 20px;
+        margin: 30px 0;
+    }
+
+    .rejected-box .rejected-label {
+        font-size: 14px;
+        color: #dc2626;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .rejected-box .rejected-reason {
+        font-size: 15px;
+        color: #555;
+        line-height: 1.7;
+        font-style: italic;
+    }
+
+    /* Info boxes */
     .info-box {
         background-color: #f8f9fa;
         border-left: 4px solid #003d82;
@@ -126,6 +154,11 @@
         background-color: #fffbeb;
     }
 
+    .info-box.danger {
+        border-left-color: #dc2626;
+        background-color: #fff5f5;
+    }
+
     .info-box strong {
         color: #003d82;
         font-size: 15px;
@@ -135,6 +168,10 @@
 
     .info-box.warning strong {
         color: #d97706;
+    }
+
+    .info-box.danger strong {
+        color: #dc2626;
     }
 
     .info-box ul {
@@ -189,7 +226,12 @@
         <div class="content">
             <div class="date-info">
                 <strong>Fecha:</strong> {{ $today }}<br>
-                <strong>Asunto:</strong> Código único para actualización de datos<br>
+                <strong>Asunto:</strong>
+                @if ($status === 'approved')
+                    Solicitud de actualización aprobada - Código de acceso único<br>
+                @else
+                    Solicitud de actualización rechazada<br>
+                @endif
                 <strong>De:</strong> admision@unprg.edu.pe
             </div>
 
@@ -201,36 +243,70 @@
                 @endif
             </div>
 
-            <div class="message-text">
-                Su solicitud de actualización de datos ha sido registrada exitosamente.
-                A continuación encontrará su <strong>código único de acceso</strong>, el cual le permitirá
-                ingresar al portal y actualizar su información personal.
-            </div>
+            @if ($status === 'approved')
+                {{-- SECCIÓN APROBADO --}}
+                <div class="message-text">
+                    Su solicitud de actualización de datos ha sido <strong>revisada y aprobada</strong> por la
+                    Dirección de Admisión. A continuación encontrará su <strong>código único de acceso</strong>,
+                    el cual le permitirá ingresar al portal y actualizar su información personal.
+                </div>
 
-            <div class="code-box">
-                <div class="code-label">Su código de acceso único</div>
-                <div class="code-value">{{ $uniqueCode }}</div>
-                <div class="code-expiry">⏳ Válido hasta: {{ $expiresAt }}</div>
-            </div>
+                <div class="code-box">
+                    <div class="code-label">Su código de acceso único</div>
+                    <div class="code-value">{{ $uniqueCode }}</div>
+                    <div class="code-expiry">⏳ Válido hasta: {{ $expiresAt }}</div>
+                </div>
 
-            <div class="info-box">
-                <strong>📋 PASOS PARA ACTUALIZAR SUS DATOS:</strong>
-                <ul>
-                    <li>Ingrese al portal de admisión y seleccione la opción <strong>"Actualizar datos"</strong>.</li>
-                    <li>Ingrese su <strong>número de documento</strong>, <strong>número de voucher</strong> y el <strong>código único</strong> recibido en este correo.</li>
-                    <li>Realice los cambios necesarios en su información y confirme la actualización.</li>
-                    <li>Sus cambios serán revisados por el equipo de admisión antes de ser aplicados.</li>
-                </ul>
-            </div>
+                <div class="info-box">
+                    <strong>📋 PASOS PARA ACTUALIZAR SUS DATOS:</strong>
+                    <ul>
+                        <li>Ingrese al portal de admisión y seleccione la opción <strong>"Actualizar datos"</strong>.</li>
+                        <li>Ingrese su <strong>número de documento</strong>, <strong>número de voucher</strong> y el <strong>código único</strong> recibido en este correo.</li>
+                        <li>Realice los cambios necesarios en su información y confirme la actualización.</li>
+                        <li>Sus cambios serán aplicados de forma inmediata al usar el código.</li>
+                    </ul>
+                </div>
 
-            <div class="info-box warning">
-                <strong>⚠ IMPORTANTE:</strong>
-                <ul>
-                    <li>Este código es de <strong>uso único</strong>. Una vez utilizado quedará invalidado.</li>
-                    <li>El código expira el <strong>{{ $expiresAt }}</strong>. Pasada esta fecha deberá solicitar uno nuevo.</li>
-                    <li>Si usted no realizó esta solicitud, ignore este correo y comuníquese con la Dirección de Admisión.</li>
-                </ul>
-            </div>
+                <div class="info-box warning">
+                    <strong>⚠ IMPORTANTE:</strong>
+                    <ul>
+                        <li>Este código es de <strong>uso único</strong>. Una vez utilizado quedará invalidado.</li>
+                        <li>El código expira el <strong>{{ $expiresAt }}</strong>. Pasada esta fecha deberá realizar una nueva solicitud.</li>
+                        <li>Si usted no realizó esta solicitud, comuníquese de inmediato con la Dirección de Admisión.</li>
+                    </ul>
+                </div>
+
+            @else
+                {{-- SECCIÓN RECHAZADO --}}
+                <div class="message-text">
+                    Lamentamos informarle que su solicitud de actualización de datos ha sido
+                    <strong>revisada y no ha podido ser aprobada</strong> por la Dirección de Admisión.
+                </div>
+
+                <div class="rejected-box">
+                    <div class="rejected-label">✗ Solicitud Rechazada</div>
+                    <div class="rejected-reason">
+                        <strong>Motivo:</strong> {{ $note }}
+                    </div>
+                </div>
+
+                <div class="info-box danger">
+                    <strong>ℹ ¿QUÉ PUEDE HACER AHORA?</strong>
+                    <ul>
+                        <li>Revise el motivo del rechazo detallado anteriormente.</li>
+                        <li>Si considera que hubo un error, comuníquese con la Dirección de Admisión adjuntando su documentación.</li>
+                        <li>Puede realizar una nueva solicitud subsanando las observaciones indicadas.</li>
+                    </ul>
+                </div>
+
+                <div class="info-box warning">
+                    <strong>⚠ IMPORTANTE:</strong>
+                    <ul>
+                        <li>Este rechazo no afecta su inscripción como postulante.</li>
+                        <li>Para consultas, comuníquese directamente con la Dirección de Admisión.</li>
+                    </ul>
+                </div>
+            @endif
         </div>
 
         <!-- Footer -->
