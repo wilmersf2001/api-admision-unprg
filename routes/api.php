@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicGroupController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AcademicProgramController;
 use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\AuthController;
@@ -59,7 +60,9 @@ Route::get('postulants/{postulant}/postulant-file', [PostulantController::class,
 Route::post('postulants/check-registration', [PostulantController::class, 'checkRegistration']);
 Route::post('postulants/rectify-files', [PostulantController::class, 'rectifyFiles']);
 Route::post('postulants/request-update-postulant', [PostulantController::class, 'requestUpdatePostulant']);
-Route::post('postulants/create-update-request', [PostulantController::class, 'createUpdateRequest']);
+Route::post('postulants/create-request-update', [PostulantController::class, 'createRequestUpdate']);
+Route::post('postulants/check-request-update', [PostulantController::class, 'checkRequestUpdatePostulant']);
+Route::post('postulants/update-postulant-data', [PostulantController::class, 'updatePostulantData']);
 
 // Rutas protegidas (con autenticación)
 Route::middleware('auth:sanctum')->group(function () {
@@ -280,4 +283,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [UpdateRequestController::class, 'index']);
         Route::put('/{updateRequest}/respond', [UpdateRequestController::class, 'respond']);
     });
+
+    // Route Notifications
+    Route::get('notifications', [NotificationController::class, 'index']);
 });

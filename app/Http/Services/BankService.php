@@ -176,7 +176,7 @@ class BankService
     /**
      * Valida el token de actualización de datos de postulante y retorna el payload
      */
-    public function validateUpdateRequestToken(string $token): object
+    public function validateRequestUpdateToken(string $token): object
     {
         try {
             $payload = JWT::decode($token, new Key(config('app.key'), 'HS256'));
@@ -190,6 +190,26 @@ class BankService
             throw new Exception('El tiempo para actualizar el pago ha expirado. Verifique su pago nuevamente.');
         } catch (Exception $e) {
             throw new Exception('Token de actualización inválido.');
+        }
+    }
+
+    public function validateUpdateDataToken(string $token): object
+    {
+        try {
+            $payload = JWT::decode($token, new Key(config('app.key'), 'HS256'));
+
+            if (!isset($payload->type) || $payload->type !== 'update_data_postulant') {
+                throw new Exception('Token de actualización de datos inválido.');
+            }
+
+            return $payload;
+        } catch (ExpiredException $e) {
+            throw new Exception('El tiempo para actualizar los datos ha expirado. Verifique su código nuevamente.');
+        } catch (Exception $e) {
+            if (str_contains($e->getMessage(), 'expirado')) {
+                throw $e;
+            }
+            throw new Exception('Token de actualización de datos inválido.');
         }
     }
 

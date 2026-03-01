@@ -65,6 +65,16 @@ class UpdateRequest extends Model
         ];
     }
 
+    public function setReasonAttribute($value)
+    {
+        $this->attributes['reason'] = strtoupper($value);
+    }
+
+    public function setNoteAttribute($value)
+    {
+        $this->attributes['note'] = strtoupper($value);
+    }
+
     public function postulant()
     {
         return $this->belongsTo(Postulant::class, 'postulant_id');

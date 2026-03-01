@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SendMailRequest;
 use App\Http\Traits\ApiResponse;
 use App\Http\Traits\HandlesValidation;
-use App\Jobs\SendEmailJob;
+use App\Jobs\SendMailJob;
+use App\Mail\SendMailPostulant;
 use App\Models\Postulant;
 use App\Models\Process;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +33,7 @@ class SendMailController extends Controller
                 ]);
                 $sexo = $postulante->sexo_id;
 
-                SendEmailJob::dispatch($email, $destinatario, $sexo, $isValidFiles, $processNumber);
+                SendMailJob::dispatch($email, new SendMailPostulant($destinatario, $sexo, $isValidFiles, $processNumber));
             }
 
             Postulant::bulkUpdateStatus($idsPostulantes, $postulanteState);

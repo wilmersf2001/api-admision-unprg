@@ -4,7 +4,6 @@ namespace App\Http\Services;
 
 use App\Http\Utils\Constants;
 use App\Http\Utils\UtilFunction;
-use App\Mail\UpdateRequestMail;
 use App\Models\Bank;
 use App\Models\Content;
 use App\Models\District;
@@ -19,7 +18,6 @@ use Exception;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -61,15 +59,6 @@ class PostulantService
         }
     }
 
-    /**
-     * Registra un postulante usando el token de inscripción
-     * Usa transacción y bloqueo para evitar condiciones de carrera
-     *
-     * @param array $data Datos del postulante
-     * @param string $token Token de inscripción
-     * @return Postulant
-     * @throws Exception
-     */
     public function registerWithToken(array $data, string $token): Postulant
     {
         // Validar el token primero (fuera de la transacción)
@@ -173,9 +162,6 @@ class PostulantService
         }
     }
 
-    /**
-     * Lista postulantes con archivos válidos (las 3 carpetas) y estado inscrito
-     */
     public function getValidFiles(Request $request)
     {
         return $this->getPostulantsByFolder(
@@ -185,9 +171,6 @@ class PostulantService
         );
     }
 
-    /**
-     * Lista postulantes con archivos observados y estado inscrito
-     */
     public function getObservedFiles(Request $request)
     {
         return $this->getPostulantsByFolder(
@@ -197,10 +180,6 @@ class PostulantService
         );
     }
 
-    /**
-     * Lista postulantes con archivos observados reiterados y estado observado
-     * Excluye los que ya tienen archivos en la carpeta de válidos
-     */
     public function getObservedReiteratedFiles(Request $request)
     {
         return $this->getPostulantsByFolder(
@@ -211,9 +190,6 @@ class PostulantService
         );
     }
 
-    /**
-     * Lista postulantes con archivos rectificados y estado envío observado
-     */
     public function getRectifiedFiles(Request $request)
     {
         return $this->getPostulantsByFolder(
@@ -223,11 +199,6 @@ class PostulantService
         );
     }
 
-    /**
-     * Obtiene postulantes cuyo DNI existe en las 3 subcarpetas de la carpeta indicada
-     * y cuyo estado_postulante_id coincide con el estado dado.
-     * Opcionalmente excluye DNIs que ya existan en otra carpeta (ej: válidos).
-     */
     private function getPostulantsByFolder(string $folder, string $estadoId, Request $request, ?string $excludeFolder = null)
     {
         $disk = Constants::DISK_STORAGE;
@@ -254,9 +225,6 @@ class PostulantService
         return $query->applyPagination($request);
     }
 
-    /**
-     * Extrae los DNIs (sin prefijo) de los archivos de una carpeta
-     */
     private function extractDnisFromFolder(string $disk, string $directory, string $prefix): \Illuminate\Support\Collection
     {
         $files = Storage::disk($disk)->files($directory);
@@ -346,10 +314,6 @@ class PostulantService
         return null;
     }
 
-    /**
-     * Verifica si un postulante está registrado buscando por datos del banco
-     * y genera un token de rectificación con 5 minutos de expiración
-     */
     public function checkRegistration(array $data): array
     {
         $bank = Bank::where('num_documento', $data['num_documento'])
@@ -387,10 +351,6 @@ class PostulantService
         ];
     }
 
-    /**
-     * Rectifica las fotos de un postulante guardándolas en archivos_rectificados
-     * y elimina lógicamente los archivos anteriores (original y rectificados previos)
-     */
     public function rectifyFiles(array $data, string $token): Postulant
     {
         $payload = $this->bankService->validateRectificationToken($token);
@@ -433,9 +393,6 @@ class PostulantService
         return $postulant->fresh();
     }
 
-    /**
-     * Elimina lógicamente los archivos anteriores de un postulante por tipo
-     */
     private function softDeletePreviousFiles(Postulant $postulant, array $typeEntities): void
     {
         $postulant->files()
@@ -458,7 +415,7 @@ class PostulantService
     }
 
     public function requestUpdatePostulant(array $data): array{
-        //Buscamos el registro del postulante por su número de documento y voucher de pago
+
         $bank = Bank::where('num_documento', $data['num_documento'])
             ->where('num_doc_depo', $data['num_doc_depo'])
             ->whereNotNull('postulant_id')
@@ -479,6 +436,15 @@ class PostulantService
             throw new Exception('Ya tiene una solicitud de actualización pendiente. Debe esperar a que sea atendida antes de generar una nueva.');
         }
 
+        $existingRequest = UpdateRequest::where('postulant_id', $postulant->id)
+            ->where('status', UpdateRequest::STATUS_PENDING)
+            ->where('code_expires_at', '>', now())
+            ->first();
+
+        if ($existingRequest) {
+            throw new Exception('Ya tiene una solicitud de actualización pendiente con un código único vigente. Debe usar el código enviado a su correo para realizar la actualización o esperar a que expire antes de generar una nueva solicitud.');
+        }
+
         // Generar token de actualización con 5 minutos de expiración
         $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES_REQUEST * 60);
 
@@ -496,15 +462,15 @@ class PostulantService
 
         return [
             'postulant' => $postulant,
-            'token_actualizacion' => $token,
+            'token_solicitud_actualizacion' => $token,
             'expires_in' => Constants::TOKEN_EXPIRATION_MINUTES_REQUEST * 60,
             'expires_at' => date('Y-m-d H:i:s', $expirationTime),
         ];
     }
 
-    public function createUpdateRequest(array $data, string $token): array
+    public function createRequestUpdate(array $data, string $token): array
     {
-        $payload = $this->bankService->validateUpdateRequestToken($token);
+        $payload = $this->bankService->validateRequestUpdateToken($token);
 
         $postulant = $this->model->find($payload->postulant_id);
 
@@ -536,5 +502,92 @@ class PostulantService
             'message'    => 'Su solicitud ha sido registrada. Se ha enviado un código de acceso al correo registrado, válido por 24 horas.',
             'expires_at' => $expiresAt->format('Y-m-d H:i:s'),
         ];
+    }
+
+    public function checkRequestUpdatePostulant (array $data): array {
+        $updateRequest = UpdateRequest::where('unique_code', $data['unique_code'])
+            ->where('code_used', false)
+            ->where('code_expires_at', '>', now())
+            ->with('postulant')
+            ->first();
+
+        if (!$updateRequest) {
+            throw new Exception('Código único inválido o expirado. Por favor, genere una nueva solicitud de actualización.');
+        }
+
+        $postulant = $updateRequest->postulant;
+
+        if (!$postulant) {
+            throw new Exception('Postulante asociado a la solicitud de actualización no encontrado.');
+        }
+
+        // Generar token de acceso para actualización con 5 minutos de expiración
+        $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES_UPDATE * 60);
+
+        $payload = [
+            'postulant_id' => $postulant->id,
+            'update_request_id' => $updateRequest->id,
+            'type' => 'update_data_postulant',
+            'iat' => time(),
+            'exp' => $expirationTime,
+        ];
+
+        $token = JWT::encode($payload, config('app.key'), 'HS256');
+
+        return [
+            'postulant' => $updateRequest->postulant,
+            'token_actualizacion_postulante' => $token,
+            'expires_in' => Constants::TOKEN_EXPIRATION_MINUTES_UPDATE * 60,
+            'expires_at' => date('Y-m-d H:i:s', $expirationTime),
+        ];
+    }
+
+    public function updatePostulantData(array $data, string $token): Postulant
+    {
+        $payload = $this->bankService->validateUpdateDataToken($token);
+
+        $postulant = $this->model->find($payload->postulant_id);
+
+        if (!$postulant) {
+            throw new Exception('Postulante no encontrado.');
+        }
+
+        $updateRequest = UpdateRequest::find($payload->update_request_id);
+
+        if (!$updateRequest || $updateRequest->code_used) {
+            throw new Exception('La solicitud de actualización ya fue utilizada o no es válida.');
+        }
+
+        $allowedFields = [
+            'nombres_apoderado',
+            'ap_paterno_apoderado',
+            'ap_materno_apoderado',
+            'anno_egreso',
+            'telefono',
+            'telefono_ap',
+            'direccion',
+            'colegio_id',
+        ];
+
+        $updateData = array_filter(
+            array_intersect_key($data, array_flip($allowedFields)),
+            fn($value) => !is_null($value)
+        );
+
+        if (empty($updateData)) {
+            throw new Exception('Debe proporcionar al menos un campo para actualizar.');
+        }
+
+        $oldValues = array_intersect_key($postulant->toArray(), $updateData);
+
+        $postulant->update($updateData);
+
+        $updateRequest->update([
+            'code_used'  => true,
+            'old_values' => $oldValues,
+            'new_values' => $updateData,
+        ]);
+
+        return $postulant->fresh();
     }
 }

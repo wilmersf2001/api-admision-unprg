@@ -2,11 +2,11 @@
 
 namespace App\Http\Services;
 
+use App\Jobs\SendMailJob;
 use App\Mail\UpdateRequestMail;
 use App\Models\UpdateRequest;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class UpdateRequestService
 {
@@ -44,7 +44,8 @@ class UpdateRequestService
         $postulant = $updateRequest->postulant;
 
         if ($status === UpdateRequest::STATUS_APPROVED) {
-            Mail::to($postulant->correo)->send(
+            SendMailJob::dispatch(
+                $postulant->correo,
                 new UpdateRequestMail(
                     $postulant,
                     UpdateRequest::STATUS_APPROVED,
@@ -53,7 +54,8 @@ class UpdateRequestService
                 )
             );
         } else {
-            Mail::to($postulant->correo)->send(
+            SendMailJob::dispatch(
+                $postulant->correo,
                 new UpdateRequestMail(
                     $postulant,
                     UpdateRequest::STATUS_REJECTED,

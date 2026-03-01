@@ -284,7 +284,7 @@ class PostulantController extends Controller
         }
     }
 
-    public function createUpdateRequest(Request $request)
+    public function createRequestUpdate(Request $request)
     {
         $rules = [
             'reason' => 'required|string|max:500',
@@ -309,7 +309,7 @@ class PostulantController extends Controller
         }
 
         try {
-            $result = $this->service->createUpdateRequest($request->only(array_keys($rules)), $token);
+            $result = $this->service->createRequestUpdate($request->only(array_keys($rules)), $token);
 
             return $this->successResponse($result, 'Solicitud de actualización registrada exitosamente');
         } catch (Exception $exception) {
@@ -317,9 +317,97 @@ class PostulantController extends Controller
         }
     }
 
-    /**
-     * Exporta postulantes a Excel con filtros opcionales.
-     */
+    public function checkRequestUpdatePostulant(Request $request){
+        $rules = [
+            'num_documento' => 'required|string',
+            'num_doc_depo' => 'required|string',
+            'unique_code' => 'required|string',
+        ];
+
+        $validator = validator($request->all(), $rules, [
+            'num_documento.required' => 'El número de documento es obligatorio.',
+            'num_doc_depo.required' => 'El número de documento del depositante es obligatorio.',
+            'unique_code.required' => 'El código único de solicitud es obligatorio.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+        try {
+            $result = $this->service->checkRequestUpdatePostulant($request->only(array_keys($rules)));
+            $result['postulant'] = new PostulantResource($result['postulant']);
+            return $this->successResponse($result, 'Solicitud de actualización verificada exitosamente');
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function updatePostulantData(Request $request)
+    {
+        $rules = [
+            'nombres_apoderado'    => 'nullable|string|max:255',
+            'ap_paterno_apoderado' => 'nullable|string|max:255',
+            'ap_materno_apoderado' => 'nullable|string|max:255',
+            'anno_egreso'          => 'required|integer|digits:4',
+            'telefono'             => 'required|string|max:9',
+            'telefono_ap'          => 'required|string|max:9',
+            'direccion'            => 'required|string|max:500',
+            'colegio_id'           => 'required|integer|exists:tb_colegio,id',
+        ];
+
+        $validator = validator($request->all(), $rules, [
+            'nombres_apoderado.max'    => 'El nombre del apoderado no puede superar los 255 caracteres.',
+            'ap_paterno_apoderado.max' => 'El apellido paterno del apoderado no puede superar los 255 caracteres.',
+            'ap_materno_apoderado.max' => 'El apellido materno del apoderado no puede superar los 255 caracteres.',
+            'anno_egreso.required'      => 'El año de egreso es obligatorio.',
+            'anno_egreso.integer'       => 'El año de egreso debe ser un número entero.',
+            'anno_egreso.digits'      => 'El año de egreso debe tener 4 dígitos.',
+            'telefono.required'         => 'El teléfono es obligatorio.',
+            'telefono.string'           => 'El teléfono debe ser una cadena de texto.',
+            'telefono.max'              => 'El teléfono no puede superar los 9 caracteres.',
+            'telefono_ap.required'      => 'El teléfono del apoderado es obligatorio.',
+            'telefono_ap.string'        => 'El teléfono del apoderado debe ser una cadena de texto.',
+            'telefono_ap.max'           => 'El teléfono del apoderado no puede superar los 9 caracteres.',
+            'direccion.required'        => 'La dirección es obligatoria.',
+            'direccion.string'          => 'La dirección debe ser una cadena de texto.',
+            'direccion.max'             => 'La dirección no puede superar los 500 caracteres.',
+            'colegio_id.required'       => 'El colegio es obligatorio.',
+            'colegio_id.integer'        => 'El colegio debe ser un número entero.',
+            'colegio_id.exists'       => 'El colegio seleccionado no existe.',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first());
+        }
+
+        $token = $request->header('X-Update-Data-Token');
+
+        if (!$token) {
+            return $this->errorResponse(
+                'Token de actualización requerido. Verifique su código de actualización primero.',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        try {
+            $postulant = $this->service->updatePostulantData($request->only(array_keys($rules)), $token);
+
+            return $this->successResponse(
+                new PostulantResource($postulant),
+                'Datos del postulante actualizados exitosamente'
+            );
+        } catch (Exception $exception) {
+            $statusCode = Response::HTTP_BAD_REQUEST;
+
+            if (str_contains($exception->getMessage(), 'expirado') || str_contains($exception->getMessage(), 'inválido')) {
+                $statusCode = Response::HTTP_UNAUTHORIZED;
+            }
+
+            return $this->errorResponse($exception->getMessage(), $statusCode);
+        }
+    }
+
     public function export(Request $request)
     {
         try {
