@@ -23,19 +23,20 @@ class UpdateViewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
+            'name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|nullable|string|max:255',
             'slug' => [
+                'sometimes',
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('views')->ignore($this->route('view')),
             ],
-            'route' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
-            'parent_id' => 'nullable|exists:views,id',
+            'route' => 'sometimes|nullable|string|max:255',
+            'icon' => 'sometimes|nullable|string|max:255',
+            'order' => 'sometimes|nullable|integer',
+            'is_active' => 'sometimes|nullable|boolean',
+            'parent_id' => 'sometimes|nullable|exists:views,id',
         ];
     }
 

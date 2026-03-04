@@ -72,6 +72,7 @@ class PostulantResource extends JsonResource
                     'path' => $file->path,
                 ]);
             }),
+            'type_school' => $this->school?->tipo,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
