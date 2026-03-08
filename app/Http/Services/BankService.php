@@ -75,6 +75,7 @@ class BankService
         $record = $this->model
             ->where('num_doc_depo', $data['num_doc_depo'])
             ->where('num_documento', $data['num_documento'])
+            ->where('tipo_doc_pago', $data['tipo_doc_pago'])
             ->where('num_oficina', $data['num_oficina'])
             ->whereDate('fecha', $data['fecha'])
             ->first();

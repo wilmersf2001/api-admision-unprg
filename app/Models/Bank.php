@@ -39,6 +39,13 @@ class Bank extends Model
         'used_at' => 'datetime',
     ];
 
+    //CODIGOS DE CONCEPTO ADMISION
+    public const NUMERO_CONCEPTO_ADMISION = ['345', '346', '997', '998', '999'];
+
+    // Constantes para tipo de documento de pago
+    public const TIPO_DOC_DNI = '01';
+    public const TIPO_DOC_CE = '09';
+
     public const MONTO_NACIONAL = 280.00;
     public const MONTO_PARTICULAR = 380.00;
     public const CONCEPTO_NACIONAL = '00346';

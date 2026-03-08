@@ -54,7 +54,7 @@ class Postulant extends Model
     ];
 
     const DOCUMENT_TYPE_DNI = "1";
-    const DOCUMENT_TYPE_CE = "2";
+    const DOCUMENT_TYPE_CE = "9";
 
     protected function getFilterConfig(): array
     {

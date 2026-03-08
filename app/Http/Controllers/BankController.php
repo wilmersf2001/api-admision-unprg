@@ -52,6 +52,7 @@ class BankController extends Controller
         $rules = [
             'num_doc_depo' => 'required|string',
             'num_documento' => 'required|string',
+            'tipo_doc_pago' => 'required|string',
             'num_oficina' => 'required|string',
             'fecha' => 'required|date',
             'tipo_colegio' => 'required|string|in:Nacional,Particular',

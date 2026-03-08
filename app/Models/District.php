@@ -21,6 +21,8 @@ class District extends Model
         'provincia_id',
     ];
 
+    public const ID_DISTRITO_OTROS = 1891;
+
     protected function getFilterConfig(): array
     {
         return [

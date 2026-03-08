@@ -53,7 +53,7 @@ class StorePostulantRequest extends FormRequest
 
             // Relaciones (IDs)
             'sexo_id' => 'required|exists:tb_sexo,id',
-            'distrito_nac_id' => 'required|exists:tb_distrito,id',
+            'distrito_nac_id' => 'sometimes|required|exists:tb_distrito,id',
             'distrito_res_id' => 'required|exists:tb_distrito,id',
             'tipo_direccion_id' => 'required|exists:tb_tipo_direccion,id',
             'programa_academico_id' => 'required|exists:tb_programa_academico,id',

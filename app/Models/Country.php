@@ -37,6 +37,8 @@ class Country extends Model
         ];
     }
 
+    public const ID_PERU = 134;
+
     protected function getSortConfig(): array
     {
         return [

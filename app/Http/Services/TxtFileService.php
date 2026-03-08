@@ -2,7 +2,6 @@
 
 namespace App\Http\Services;
 
-use App\Http\Utils\Constants;
 use App\Models\Bank;
 use App\Models\TxtFile;
 use Exception;
@@ -13,7 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 class TxtFileService
 {
     protected TxtFile $model;
-    private string $nameModel = 'Archivo Txt';
 
     public function __construct(TxtFile $model)
     {
@@ -35,11 +33,11 @@ class TxtFileService
             $hora = substr($linea, 87, 2) . ":" . substr($linea, 89, 2) . ":" . substr($linea, 91, 2);
             $cod_age = substr($linea, 97, 4);
 
-            if ($tipo_doc == '09') {
+            if ($tipo_doc == Bank::TIPO_DOC_CE) {
                 $num_doc = substr($relleno_do . $num_doc, -9);
             }
 
-            if (in_array(ltrim($concepto, '0'), Constants::NUMERO_CONCEPTO_ADMISION)) {
+            if (in_array(ltrim($concepto, '0'), Bank::NUMERO_CONCEPTO_ADMISION)) {
                 Bank::create([
                     'num_oficina' => $cod_age,
                     'cod_concepto' => substr($concepto, 3),

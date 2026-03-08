@@ -6,6 +6,7 @@ use App\Http\Utils\Constants;
 use App\Http\Utils\UtilFunction;
 use App\Models\Bank;
 use App\Models\Content;
+use App\Models\Country;
 use App\Models\District;
 use App\Models\File;
 use App\Models\Postulant;
@@ -74,8 +75,9 @@ class PostulantService
             $data['fecha_inscripcion'] = now();
             $data['codigo'] = substr((string) $data['num_documento'], 0, 8);
             $data['ingreso'] = 0;
-            $data['estado_postulante_id'] = $data['estado_postulante_id'] ?? 1; // Estado inicial
-            $data['pais_id'] = $data['pais_id'] ?? Constants::ID_PERU; // Perú por defecto
+            $data['estado_postulante_id'] = PostulantState::INSCRITO_WEB; // Estado inicial
+            $data['distrito_nac_id'] = $data['distrito_nac_id'] ?? District::ID_DISTRITO_OTROS; // Lima por defecto
+            $data['pais_id'] = $data['pais_id'] ?? Country::ID_PERU; // Perú por defecto
             $imagePostulanteFile = $data['foto_postulante'] ?? null;
             $imageDniAnversoFile = $data['dni_anverso'] ?? null;
             $imageDniReversoFile = $data['dni_reverso'] ?? null;
