@@ -175,30 +175,59 @@ class PostulantService
 
     public function getObservedFiles(Request $request)
     {
-        return $this->getPostulantsByFolder(
-            Constants::CARPETA_ARCHIVOS_OBSERVADOS,
-            PostulantState::INSCRITO_WEB,
-            $request
-        );
+        $disk = Constants::DISK_STORAGE;
+        $observedFolder = Constants::CARPETA_ARCHIVOS_OBSERVADOS;
+        $validFolder = Constants::CARPETA_ARCHIVOS_VALIDOS;
+
+        // Unión: basta que el DNI esté en al menos 1 subcarpeta de observados
+        $dnisFotoCarnet = $this->extractDnisFromFolder($disk, $observedFolder . Constants::CARPETA_FOTO_CARNET, '');
+        $dnisDniAnverso = $this->extractDnisFromFolder($disk, $observedFolder . Constants::CARPETA_DNI_ANVERSO, 'A-');
+        $dnisDniReverso = $this->extractDnisFromFolder($disk, $observedFolder . Constants::CARPETA_DNI_REVERSO, 'R-');
+
+        $dnisObservados = $dnisFotoCarnet->merge($dnisDniAnverso)->merge($dnisDniReverso)->unique()->values();
+
+        // Excluir DNIs que ya están completos (en las 3 subcarpetas) de archivos válidos
+        $dnisValidosFoto    = $this->extractDnisFromFolder($disk, $validFolder . Constants::CARPETA_FOTO_CARNET, '');
+        $dnisValidosAnverso = $this->extractDnisFromFolder($disk, $validFolder . Constants::CARPETA_DNI_ANVERSO, 'A-');
+        $dnisValidosReverso = $this->extractDnisFromFolder($disk, $validFolder . Constants::CARPETA_DNI_REVERSO, 'R-');
+
+        $dnisCompletosValidos = $dnisValidosFoto->intersect($dnisValidosAnverso)->intersect($dnisValidosReverso)->values();
+
+        $dnisFinales = $dnisObservados->diff($dnisCompletosValidos)->values();
+
+        $query = $this->model->newQuery()->with('files');
+        $query->whereIn('num_documento', $dnisFinales)
+              ->where('estado_postulante_id', PostulantState::INSCRITO_WEB);
+        $query->applyFilters($request);
+        $query->applySort($request);
+
+        $result = $query->applyPagination($request);
+        $this->attachFolderFilesToResult($result, Constants::CARPETA_ARCHIVOS_OBSERVADOS);
+        return $result;
     }
 
     public function getObservedReiteratedFiles(Request $request)
     {
-        return $this->getPostulantsByFolder(
-            Constants::CARPETA_ARCHIVOS_RECTIFICADOS,
+        $result = $this->getPostulantsByFolder(
+            Constants::CARPETA_ARCHIVOS_OBSERVADOS,
             PostulantState::ARCHIVOS_ENVIO_OBSERVADOS,
             $request,
             Constants::CARPETA_ARCHIVOS_VALIDOS
         );
+        $this->attachFolderFilesToResult($result, Constants::CARPETA_ARCHIVOS_RECTIFICADOS);
+        return $result;
     }
 
     public function getRectifiedFiles(Request $request)
     {
-        return $this->getPostulantsByFolder(
+        $result = $this->getPostulantsByFolder(
             Constants::CARPETA_ARCHIVOS_VALIDOS,
             PostulantState::ARCHIVOS_ENVIO_OBSERVADOS,
             $request
         );
+
+        $this->attachFolderFilesToResult($result, Constants::CARPETA_ARCHIVOS_VALIDOS);
+        return $result;
     }
 
     private function getPostulantsByFolder(string $folder, string $estadoId, Request $request, ?string $excludeFolder = null)
@@ -225,6 +254,29 @@ class PostulantService
         $query->applySort($request);
 
         return $query->applyPagination($request);
+    }
+
+    private function attachFolderFilesToResult($result, string $folder): void
+    {
+        $disk = Constants::DISK_STORAGE;
+        $mappings = [
+            [Constants::CARPETA_FOTO_CARNET, '',   'foto_postulante'],
+            [Constants::CARPETA_DNI_ANVERSO, 'A-', 'foto_dni_anverso'],
+            [Constants::CARPETA_DNI_REVERSO, 'R-', 'foto_dni_reverso'],
+        ];
+
+        $items = method_exists($result, 'getCollection') ? $result->getCollection() : $result;
+
+        foreach ($items as $postulant) {
+            $folderFiles = collect();
+            foreach ($mappings as [$subfolder, $prefix, $typeEntitie]) {
+                $file = $this->findFileByName($disk, $folder . $subfolder, $prefix . $postulant->num_documento);
+                if ($file) {
+                    $folderFiles->push((object)['type_entitie' => $typeEntitie, 'path' => $file]);
+                }
+            }
+            $postulant->setRelation('files', $folderFiles);
+        }
     }
 
     private function extractDnisFromFolder(string $disk, string $directory, string $prefix): \Illuminate\Support\Collection
@@ -329,6 +381,7 @@ class PostulantService
         }
 
         $postulant = $bank->postulant->load('files');
+        $this->attachFolderFilesToResult(collect([$postulant]), Constants::CARPETA_ARCHIVOS_OBSERVADOS);
 
         // Generar token de rectificación con 5 minutos de expiración
         $expirationTime = time() + (Constants::TOKEN_EXPIRATION_MINUTES * 60);
