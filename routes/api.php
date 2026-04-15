@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardExportController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DistributionVacanciesController;
@@ -268,6 +269,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/regions', [DashboardController::class, 'regions']);
         Route::get('/top-schools', [DashboardController::class, 'topSchools']);
         Route::get('/inscription-trend', [DashboardController::class, 'inscriptionTrend']);
+        Route::get('/export', [DashboardExportController::class, 'export']);
     });
 
     // Route Content
